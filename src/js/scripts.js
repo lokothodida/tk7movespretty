@@ -4,59 +4,59 @@
  * =	mspkvp@github.com      =
  * =	©2017 tk7movespretty   =
  * ============================= */
+/* global d3, Cookies */
 ;(function(exports) {
 
 'use strict';
 
-var char_data = [],
-	ctrls_map,
-	hits_map = [];
+var characterData = [],
+	ctrlsMap,
+	hitsMap = [];
 
 /** States **/
-var selected_char = "32",
+var selectedCharacter = "32",
 	lang = 1,
-	lang_index = 0,
+	langIndex = 0,
 	jap = false,
 	prefDialog = false,
 	charMenuDialog = false,
-	button_layouts = ["STEAM", "PS4","XBOX"],
-	bl_choice = 2;
+	buttonLayouts = ["STEAM", "PS4","XBOX"],
+	buttonLayoutChoice = 2;
 
-function getCookie(){
-	if(typeof Cookies.get('tk7moves') != 'undefined'){
-		d3.select("#platf-select > option:nth-child("+(bl_choice+1)+")").attr("selected",false);
-		d3.select("#lang-select > option:nth-child("+(lang_index+1)+")").attr("selected",false);
+function getCookie() {
+	if (typeof Cookies.get('tk7moves') != 'undefined') {
+		d3.select("#platf-select > option:nth-child("+(buttonLayoutChoice+1)+")").attr("selected",false);
+		d3.select("#lang-select > option:nth-child("+(langIndex+1)+")").attr("selected",false);
 
 		var vals = JSON.parse(Cookies.get('tk7moves'));
-		selected_char = vals.selected_char;
+		selectedCharacter = vals.selected_char;
 		lang = vals.lang;
-		lang_index = vals.lang_index;
+		langIndex = vals.lang_index;
 		jap = vals.jap;
-		bl_choice = vals.bl_choice;
+		buttonLayoutChoice = vals.bl_choice;
 
-		d3.select("#platf-select > option:nth-child("+(bl_choice+1)+")").attr("selected",true);
-		d3.select("#lang-select > option:nth-child("+(lang_index+1)+")").attr("selected",true);
-	}
-	else {
+		d3.select("#platf-select > option:nth-child("+(buttonLayoutChoice+1)+")").attr("selected",true);
+		d3.select("#lang-select > option:nth-child("+(langIndex+1)+")").attr("selected",true);
+	} else {
 		setCookie();
 	}
 }
 
-function setCookie(){
-	Cookies.set('tk7moves',JSON.stringify({
-		selected_char: selected_char,
+function setCookie() {
+	Cookies.set('tk7moves', JSON.stringify({
+		selected_char: selectedCharacter,
 		lang: lang,
-		lang_index: lang_index,
+		lang_index: langIndex,
 		jap: jap,
-		bl_choice: bl_choice
+		bl_choice: buttonLayoutChoice
 	}), { expires: 30, path: '' });
 }
 
-function isLetter(c) {
-  return c.toLowerCase() != c.toUpperCase();
+function isLetter(char) {
+	return char.toLowerCase() != char.toUpperCase();
 }
 
-String.prototype.hexEncode = function(){
+String.prototype.hexEncode = function() {
     var hex, i;
 
     var result = "";
@@ -68,7 +68,7 @@ String.prototype.hexEncode = function(){
     return result;
 }
 
-String.prototype.hexDecode = function(){
+String.prototype.hexDecode = function() {
     var j;
     var hexes = this.match(/.{1,4}/g) || [];
     var back = "";
@@ -96,11 +96,11 @@ function setLang(val){
 
 	d3.select("#lang-select").selectAll("option").each(function(){
 		if(parseInt(this.value) === lang){
-			lang_index = this.index;
+			langIndex = this.index;
 		}
 	});
 	setCookie();
-	fetchmovelist(selected_char);
+	fetchmovelist(selectedCharacter);
 }
 
 function selectChar(index){
@@ -108,205 +108,163 @@ function selectChar(index){
 	d3.select(".move-table").remove();
 	d3.select(".char-movelist .inner-table").html("<table class=\"move-table\"></table>");
 	//de-select card
-	var id_string = char_data[selected_char].c.split(" ");
+	var id_string = characterData[selectedCharacter].c.split(" ");
 	d3.select("#"+id_string[0]).classed("selected", false);
-	selected_char = index;
-	id_string = char_data[selected_char].c.split(" ");
+	selectedCharacter = index;
+	id_string = characterData[selectedCharacter].c.split(" ");
 	d3.select("#"+id_string[0]).classed("selected", true);
-	d3.select("#selected-title").text(char_data[selected_char].n);
+	d3.select("#selected-title").text(characterData[selectedCharacter].n);
 	setCookie();
 
 	if(charMenuDialog) toggleCharMenu();
 }
 
 var togglePreferences = function() {
-	if(prefDialog)
+	if (prefDialog) {
 		d3.select("#preferences").style('visibility', 'hidden');
-	else d3.select("#preferences").style('visibility', 'visible');
+	} else {
+		d3.select("#preferences").style('visibility', 'visible');
+	}
 
 	prefDialog = !prefDialog;
 };
 
-var toggleCharMenu = function(){
-	if(charMenuDialog)
+var toggleCharMenu = function() {
+	if (charMenuDialog) {
 		d3.select("#charmenu").style('display', 'none');
-	else d3.select("#charmenu").style('display', 'initial');
+	} else {
+		d3.select("#charmenu").style('display', 'initial');
+	}
 
 	charMenuDialog = !charMenuDialog;
 };
 
-var changePlatform = function(index){
-	bl_choice = index;
+var changePlatform = function(index) {
+	buttonLayoutChoice = index;
 	setCookie();
-	fetchmovelist(selected_char);
+	fetchmovelist(selectedCharacter);
 };
 
-var importdata = function importdata(){
+var importdata = function() {
 	getCookie();
-	d3.json("./assets/data/map_hits.json", function(err, data) {
-		for(var h in data)
-			hits_map[data[h].i] = data[h].h;
-		d3.json("./assets/data/map_ctrls.json", function(err, data) {
-			ctrls_map = data;
 
-			d3.json("./assets/data/map_chars.json", function(err, data) {
-				for(var h in data)
-					char_data[data[h].i] = {c: data[h].c, n: data[h].n};
+	loadJson("./assets/data/map_hits.json").then(function(data) {
+		for(var h in data) {
+			hitsMap[data[h].i] = data[h].h;
+		}
 
-				for(let i=0; i<data.length; i++){
-					var tname = data[i].c_index.split(" ");
-					if(data[i].i == "11")
-						tname = data[i].c.split("-");
-					d3.select(".char-menu > .inner-table > table").append("tr")
-						.html("<td class=\"char-card\" id=\""+data[i].c.split(" ")[0]+"\"><img src=\"./assets/chars/"+tname.join("").toLowerCase()+"_thumbnail.png\"><p>"+data[i].c+"</p></td>");
-					d3.select("#"+data[i].c.split(" ")[0]).on("click", function(){fetchmovelist(data[i].i)});
-				}
-				var id_string = char_data[selected_char].c.split(" ");
-				d3.select("#"+id_string[0]).classed("selected", true);
-				d3.select("#selected-title").text(char_data[selected_char].n);
-				fetchmovelist(selected_char);
+		return loadJson("./assets/data/map_ctrls.json");
+	}).then(function(data) {
+		ctrlsMap = data;
+
+		return loadJson("./assets/data/map_chars.json");
+	}).then(function(data) {
+		for (let h in data) {
+			characterData[data[h].i] = {c: data[h].c, n: data[h].n};
+		}
+
+		for (let i = 0; i < data.length; i++) {
+			let tname = data[i].c_index.split(" ");
+
+			if(data[i].i == "11") {
+				tname = data[i].c.split("-");
+			}
+
+			d3.select(".char-menu > .inner-table > table").append("tr")
+				.html("<td class=\"char-card\" id=\""+data[i].c.split(" ")[0]+"\"><img src=\"./assets/chars/"+tname.join("").toLowerCase()+"_thumbnail.png\"><p>"+data[i].c+"</p></td>");
+			d3.select("#"+data[i].c.split(" ")[0]).on("click", function() {
+				fetchmovelist(data[i].i);
 			});
-		});
+		}
+		let id_string = characterData[selectedCharacter].c.split(" ");
+		d3.select("#"+id_string[0]).classed("selected", true);
+		d3.select("#selected-title").text(characterData[selectedCharacter].n);
+
+		fetchmovelist(selectedCharacter);
 	});
 };
 
-var fetchmovelist = function fetchmovelist(index) {
-	d3.json("./assets/data/movelists/MOVELIST_"+index+".json", function(err, data) {
+var fetchmovelist = function fetchmovelist(selectedCharacterIndex) {
+	d3.json("./assets/data/movelists/MOVELIST_"+selectedCharacterIndex+".json", function(err, data) {
+		selectChar(selectedCharacterIndex);
 
-		selectChar(index);
+		let mov_count = 0;
+		for (let i = 0; i < data.moves.length; i++) {
+			let move = data.moves[i];
 
-		var mov_count = 0;
-		for(let i=0; i<data.moves.length; i++){
 			// Number + Move Name
 			// Special
-			if(!data.moves[i].number>0){
+			if (!move.number > 0) {
 				let html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">&#9733;</div>"+
-					"<div class=\"move-title\"><div class=\"move-name\" style=\"margin-bottom:5px;\">"+data.moves[i].name[jap?0:1]+"</div>"+
+					"<div class=\"move-title\"><div class=\"move-name\" style=\"margin-bottom:5px;\">"+ move.name[jap?0:1] + "</div>"+
 					"</div></div></td>";
 				d3.select(".move-table").append("tr").html(html_string);
 				continue;
 			}
 			mov_count++;
-			var html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">"+data.moves[i].number+"</div>"+
-			"<div class=\"move-title\"><div class=\"move-name\">"+data.moves[i].name[jap?0:1]+"</div>"+
-			"<div class=\"move-hitamount\">"+data.moves[i].ds.length+(data.moves[i].ds.length>1?" Hits":" Hit")+"</div></div>";
+			var html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">" + move.number + "</div>" +
+			"<div class=\"move-title\"><div class=\"move-name\">"+ move.name[jap ? 0 : 1] + "</div>"+
+			"<div class=\"move-hitamount\">"+ move.ds.length + (move.ds.length > 1 ? " Hits" : " Hit") + "</div></div>";
 
-			// Move String
-			html_string += "<div class=\"move-string\">";
-			let commands = data.moves[i].command[lang].split(" ");
-			for( let c=0; c<commands.length;c++){
-				if(/[a-z]/.test(commands[c].toLowerCase()))
-					html_string += "<p class=\"move-hint\">"+commands[c]+"</p>";
-				else {
-					for( let m=0; m<commands[c].length; m++){
-						try{
-							if( isLetter(ctrls_map[commands[c].charAt(m)])){
-								if(	ctrls_map[commands[c].charAt(m)] === ctrls_map[commands[c].charAt(m)].toLowerCase() || ctrls_map[commands[c].charAt(m)] === "N")
-									html_string += "<img class=\"move-arrow\" src=\"./assets/arrow/"+ctrls_map[commands[c].charAt(m)].toLowerCase()+".svg\">";
-								else html_string += "<img class=\"move-arrow\" src=\"./assets/arrow/"+ctrls_map[commands[c].charAt(m)].toLowerCase()+"p"+".svg\">";
-							}
-							else if(!isNaN(ctrls_map[commands[c].charAt(m)].charAt(0)))
-								html_string += "<img class=\"move-button\" src=\"./assets/button/"+button_layouts[bl_choice]+"/"+ctrls_map[commands[c].charAt(m)]+".svg\">";
-							else if( ctrls_map[commands[c].charAt(m)] === ">"){
-								html_string += "<p class=\"move-hint\" style=\"color:#37ff05;font-size:20px;\"><i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i></p>";
-							}
-							else {
-								 console.log("1. Not added: "+commands[c].charAt(m));
-								 console.log("2. Not added map: "+ctrls_map[commands[c].charAt(m)]);
-							}
-						} catch (e) {
-							if( commands[c].charAt(m) === "(" || commands[c].charAt(m) === ")")
-								html_string += "<p class=\"move-hint\">"+commands[c].charAt(m)+"</p>";
-							else{
-								html_string += "<p class=\"move-hint\">"+commands[c].charAt(m)+"</p>";
-							}
-						}
-					}
-				}
-			}
+			html_string += renderMoveString(move);
 
-			// Hit Levels
-			html_string += "</div><div class=\"move-hit-dmg\"><div class=\"move-hitlvlstring\">";
-			for( let h=0; h<data.moves[i].at.length;h++){
-				try{
-				html_string += "<p class=\"mv-hitlvl hit"+hits_map[data.moves[i].at[h].l].toLowerCase()+"\">"
-					+hits_map[data.moves[i].at[h].l]+""+(data.moves[i].at[h].t>0?" Throw":"")+"</p>";
-				} catch(e){
-					console.log(data.moves[i].at[h].l);
-					console.log(hits_map[data.moves[i].at[h].l]);
-					console.log("Fighter: "+index);
-					console.log(data.moves[i].number);
-					throw e;
-				}
-				if( h+1 < data.moves[i].at.length )
-					html_string += "<i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i>";
-			}
+			html_string += renderMoveHitDamage(selectedCharacterIndex, move);
 
-			// Breaks
-			if(data.moves[i].br.length > 0){
-				let breakt = "";
-				switch (data.moves[i].br[0].b) {
-			        case 1:
-			            breakt = "1";
-			            break;
-			        case 2:
-			            breakt = "2";
-			            break;
-			        case 3:
-			            breakt = "1/2";
-			            break;
-			        case 4:
-			            breakt = "1+2";
-			            break;
-			        default:
-			            breakt = "";
-			            break;
-			    }
-				html_string += "<i class=\"fa fa-caret-right\" aria-hidden=\"true\"></i>";
-				html_string += "<p class=\"mv-hitlvl\">"+data.moves[i].br[0].f + "F BREAK "+breakt+"</p>";
-			}
-			html_string += "</div>";
 			// Move Damage
-			html_string += "<div class=\"move-dmg\"><p class=\"mv-frames\">"+data.moves[i].d+"</p><p class=\"mv-id\">Damage</p><div class=\"move-hitdmg-section\"><i id=\"dmgmove"+data.moves[i].number+"\" class=\"fa fa-plus-square\" aria-hidden=\"true\"></i><div class=\"move-hitdmg\">";
-			for( let d=0; d<data.moves[i].ds.length; d++){
-				html_string += data.moves[i].ds[d].d;
-				if( d+1 < data.moves[i].ds.length )
+			html_string += "<div class=\"move-dmg\"><p class=\"mv-frames\">" + move.d + "</p><p class=\"mv-id\">Damage</p><div class=\"move-hitdmg-section\"><i id=\"dmgmove" + move.number + "\" class=\"fa fa-plus-square\" aria-hidden=\"true\"></i><div class=\"move-hitdmg\">";
+
+			for (let d = 0; d < move.ds.length; d++) {
+				html_string += move.ds[d].d;
+				if (d + 1 < move.ds.length) {
 					html_string += "+";
+				}
 			}
 			html_string += "</div></div></div></div></div>";
 
 			// extra section
 			html_string += "<div class=\"move-extra\"><div class=\"mv-section\"><div class=\"move-special\">";
 
-			// special effects
-			if( data.moves[i].b9 )
+			// special effects/move properties
+			/** @todo extract this logic into functions (e.g. hasSpin(move) */
+			if (move.b9) {
 				html_string += "<p class=\"spin\">SPIN</p>";
-			if( data.moves[i].b8 )
+			}
+
+			if (move.b8) {
 				html_string += "<p class=\"armor\">ARMOR</p>";
-			if( data.moves[i].bB )
+			}
+
+			if (move.bB) {
 				html_string += "<p class=\"track\">TRACK</p>";
+			}
+
 			html_string +="</div>";
 
 			// Move Frames
 			// Start F
 			html_string += "<table class=\"move-frames\">"+
 				"<tr class=\"move-startf\"><td class=\"mv-id\">Start</td><td class=\"mv-frames\">"+
-				data.moves[i].s+"F</td></tr>";
+				move.s + "F</td></tr>";
 			//Start Frames Segmented
-			if(data.moves[i].s > 0 ){
-				html_string += "<tr class=\"move-startf-seg\"><td>"+data.moves[i].s+"F = ";
-				for(var sfs=1; sfs<data.moves[i].ss.length; sfs++){
-					html_string += data.moves[i].ss[sfs].s;
-					if( sfs+1 < data.moves[i].ss.length )
+			if (move.s > 0 ) {
+				html_string += "<tr class=\"move-startf-seg\"><td>" + move.s + "F = ";
+
+				for(var sfs = 1; sfs < move.ss.length; sfs++) {
+					html_string += move.ss[sfs].s;
+
+					if (sfs + 1 < move.ss.length) {
 						html_string += "+";
+					}
 				}
+
 				html_string +="</td></tr>";
 			}
-			// Block F
-			html_string += "<tr class=\"move-blockf\"><td class=\"mv-id\">Block</td><td class=\"mv-frames "+(data.moves[i].blk>-1?"blkpositive\">+":data.moves[i].blk<-10?"blknegative\">":"blkmild\">")+data.moves[i].blk+"</td></tr>";
-			// Hit Adv F
+
+			// Block Frame
+			html_string += "<tr class=\"move-blockf\"><td class=\"mv-id\">Block</td><td class=\"mv-frames " + (move.blk > -1 ? "blkpositive\">+" : move.blk < -10 ? "blknegative\">" : "blkmild\">" ) + move.blk + "</td></tr>";
+			// Hit Adv Frame
 			html_string += "<tr class=\"move-hitf\"><td class=\"mv-id\">Hit</td>"+"<td class=\"mv-frames\">"
-				+(data.moves[i].adv>0?"+"+data.moves[i].adv:data.moves[i].adv)+"</td></tr></table>";
+				+ (move.adv > 0 ? "+" + move.adv : move.adv ) + "</td></tr></table>";
 			html_string += "</div>";
 			// ----- mv section
 
@@ -315,16 +273,146 @@ var fetchmovelist = function fetchmovelist(index) {
 			d3.select(".move-table").append("tr").html(html_string);
 		}
 
-		for(var m=1; m<=mov_count; m++){
-			var moveid = m;
-			d3.select("#dmgmove"+moveid).on("mouseenter", function(){d3.select("i#"+this.id+" + div.move-hitdmg").style('display', 'initial');});
-			d3.select("#dmgmove"+m).on("mouseleave", function(){var tid=this.id; setTimeout(function(){d3.select("i#"+tid+" + div.move-hitdmg").style('display', 'none');}, 3000);});
+		// Hit damage
+		/** @note this isn't visible on mobile width */
+		for (let moveid = 1; moveid <= mov_count; moveid++) {
+			d3.select("#dmgmove" + moveid).on("mouseenter", function() {
+				d3.select("i#"+this.id+" + div.move-hitdmg").style('display', 'initial');
+			});
+			d3.select("#dmgmove" + moveid).on("mouseleave", function() {
+				setTimeout(() => {
+					d3.select("i#"+ this.id + " + div.move-hitdmg").style('display', 'none');
+				}, 3000);
+			});
 		}
 
 		// Scroll the list to the top
 		document.querySelector("#movelist_tab > table ").firstElementChild.scrollIntoView(true);
 	});
 };
+
+function renderMoveString(move) {
+	let html_string = "<div class=\"move-string\">";
+	let commands = move.command[lang].split(" ");
+
+	for (let c = 0; c < commands.length; c++) {
+		let command = commands[c];
+		if (/[a-z]/.test(command.toLowerCase())) {
+			html_string += "<p class=\"move-hint\">"+ command + "</p>";
+		} else {
+			for (let m = 0; m < command.length; m++) {
+				try {
+					/** @todo extract this logic out */
+					if (isLetter(ctrlsMap[command.charAt(m)])) {
+						if (
+							ctrlsMap[command.charAt(m)] === ctrlsMap[command.charAt(m)].toLowerCase() ||
+							ctrlsMap[command.charAt(m)] === "N"
+						) {
+							html_string += "<img class=\"move-arrow\" src=\"./assets/arrow/"+ctrlsMap[command.charAt(m)].toLowerCase() + ".svg\">";
+						} else {
+							html_string += "<img class=\"move-arrow\" src=\"./assets/arrow/"+ctrlsMap[command.charAt(m)].toLowerCase() + "p"+".svg\">";
+						}
+					} else if (!isNaN(ctrlsMap[command.charAt(m)].charAt(0))) {
+						html_string += "<img class=\"move-button\" src=\"./assets/button/"+buttonLayouts[buttonLayoutChoice]+"/"+ctrlsMap[command.charAt(m)]+".svg\">";
+					} else if (ctrlsMap[command.charAt(m)] === ">") {
+						html_string += "<p class=\"move-hint\" style=\"color:#37ff05;font-size:20px;\"><i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i></p>";
+					} else {
+						 console.log("1. Not added: " + command.charAt(m));
+						 console.log("2. Not added map: " + ctrlsMap[command.charAt(m)]);
+					}
+				} catch (exception) {
+					if (command.charAt(m) === "(" || command.charAt(m) === ")") {
+						html_string += "<p class=\"move-hint\">"+command.charAt(m)+"</p>";
+					} else {
+						html_string += "<p class=\"move-hint\">"+command.charAt(m)+"</p>";
+					}
+				}
+			}
+		}
+	}
+
+	html_string += "</div>";
+
+	return html_string;
+}
+
+function renderMoveHitDamage(selectedCharacterIndex, move) {
+	let html_string = "<div class=\"move-hit-dmg\"><div class=\"move-hitlvlstring\">";
+
+	for (let h = 0; h < move.at.length;h++) {
+		try {
+			html_string += "<p class=\"mv-hitlvl hit"+hitsMap[move.at[h].l].toLowerCase()+"\">"
+			+ hitsMap[move.at[h].l] + "" + (move.at[h].t > 0 ? " Throw" : "" ) + "</p>";
+		} catch(exception) {
+			console.log(move.at[h].l);
+			console.log(hitsMap[move.at[h].l]);
+			console.log("Fighter: " + selectedCharacterIndex);
+			console.log(move.number);
+			throw exception;
+		}
+
+		if (h + 1 < move.at.length) {
+			html_string += "<i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i>";
+		}
+	}
+
+	html_string += renderThrowBreaks(move);
+
+	html_string += "</div>";
+
+	return html_string;
+}
+
+function renderThrowBreaks(move) {
+	let html_string = '';
+
+	if (move.br.length > 0) {
+		let breakt = "";
+		/** @todo extract the magic numbers into constants? */
+		switch (move.br[0].b) {
+	        case 1:
+	            breakt = "1";
+	            break;
+	        case 2:
+	            breakt = "2";
+	            break;
+	        case 3:
+	            breakt = "1/2";
+	            break;
+	        case 4:
+	            breakt = "1+2";
+	            break;
+	        default:
+	            breakt = "";
+	            break;
+	    }
+		html_string += "<i class=\"fa fa-caret-right\" aria-hidden=\"true\"></i>";
+		html_string += "<p class=\"mv-hitlvl\">" + move.br[0].f + "F BREAK " + breakt + "</p>";
+	}
+
+	return html_string;
+}
+
+function loadMoveList() {
+
+}
+
+/**
+ * Promise wrapper around d3.json
+ * @param string path
+ * @return Promise
+ */
+function loadJson(path) {
+	return new Promise(function(resolve, reject) {
+		d3.json(path, function(error, response) {
+			if (error) {
+				reject(error);
+			}
+
+			resolve(response);
+		});
+	});
+}
 
 exports.importdata = importdata;
 exports.toggleCharMenu = toggleCharMenu;
