@@ -184,112 +184,70 @@ var importdata = function() {
 	});
 };
 
-var fetchmovelist = function fetchmovelist(selectedCharacterIndex) {
-	d3.json("./assets/data/movelists/MOVELIST_"+selectedCharacterIndex+".json", function(err, data) {
-		selectChar(selectedCharacterIndex);
+var fetchmovelist = function fetchmovelist(characterIndex) {
+	loadJson("./assets/data/movelists/MOVELIST_" + characterIndex + ".json")
+	.then(function(data) {
+		selectChar(characterIndex);
 
-		let mov_count = 0;
+		let totalMoves = 0;
+
 		for (let i = 0; i < data.moves.length; i++) {
-			let move = data.moves[i];
+			let move          = data.moves[i];
+			let isSpecialMove = !move.number > 0;
+			let tableRow      = d3.select(".move-table").append("tr");
 
-			// Number + Move Name
-			// Special
-			if (!move.number > 0) {
-				let html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">&#9733;</div>"+
-					"<div class=\"move-title\"><div class=\"move-name\" style=\"margin-bottom:5px;\">"+ move.name[jap?0:1] + "</div>"+
-					"</div></div></td>";
-				d3.select(".move-table").append("tr").html(html_string);
-				continue;
+			if (isSpecialMove) {
+				tableRow.html(renderSpecialMoveCard(move));
+			} else {
+				totalMoves++;
+				tableRow.html(renderMoveCard(characterIndex, move));
 			}
-			mov_count++;
-			var html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">" + move.number + "</div>" +
-			"<div class=\"move-title\"><div class=\"move-name\">"+ move.name[jap ? 0 : 1] + "</div>"+
-			"<div class=\"move-hitamount\">"+ move.ds.length + (move.ds.length > 1 ? " Hits" : " Hit") + "</div></div>";
-
-			html_string += renderMoveString(move);
-
-			html_string += renderMoveHitDamage(selectedCharacterIndex, move);
-
-			// Move Damage
-			html_string += "<div class=\"move-dmg\"><p class=\"mv-frames\">" + move.d + "</p><p class=\"mv-id\">Damage</p><div class=\"move-hitdmg-section\"><i id=\"dmgmove" + move.number + "\" class=\"fa fa-plus-square\" aria-hidden=\"true\"></i><div class=\"move-hitdmg\">";
-
-			for (let d = 0; d < move.ds.length; d++) {
-				html_string += move.ds[d].d;
-				if (d + 1 < move.ds.length) {
-					html_string += "+";
-				}
-			}
-			html_string += "</div></div></div></div></div>";
-
-			// extra section
-			html_string += "<div class=\"move-extra\"><div class=\"mv-section\"><div class=\"move-special\">";
-
-			// special effects/move properties
-			/** @todo extract this logic into functions (e.g. hasSpin(move) */
-			if (move.b9) {
-				html_string += "<p class=\"spin\">SPIN</p>";
-			}
-
-			if (move.b8) {
-				html_string += "<p class=\"armor\">ARMOR</p>";
-			}
-
-			if (move.bB) {
-				html_string += "<p class=\"track\">TRACK</p>";
-			}
-
-			html_string +="</div>";
-
-			// Move Frames
-			// Start F
-			html_string += "<table class=\"move-frames\">"+
-				"<tr class=\"move-startf\"><td class=\"mv-id\">Start</td><td class=\"mv-frames\">"+
-				move.s + "F</td></tr>";
-			//Start Frames Segmented
-			if (move.s > 0 ) {
-				html_string += "<tr class=\"move-startf-seg\"><td>" + move.s + "F = ";
-
-				for(var sfs = 1; sfs < move.ss.length; sfs++) {
-					html_string += move.ss[sfs].s;
-
-					if (sfs + 1 < move.ss.length) {
-						html_string += "+";
-					}
-				}
-
-				html_string +="</td></tr>";
-			}
-
-			// Block Frame
-			html_string += "<tr class=\"move-blockf\"><td class=\"mv-id\">Block</td><td class=\"mv-frames " + (move.blk > -1 ? "blkpositive\">+" : move.blk < -10 ? "blknegative\">" : "blkmild\">" ) + move.blk + "</td></tr>";
-			// Hit Adv Frame
-			html_string += "<tr class=\"move-hitf\"><td class=\"mv-id\">Hit</td>"+"<td class=\"mv-frames\">"
-				+ (move.adv > 0 ? "+" + move.adv : move.adv ) + "</td></tr></table>";
-			html_string += "</div>";
-			// ----- mv section
-
-			html_string += "</div></td>";
-
-			d3.select(".move-table").append("tr").html(html_string);
 		}
 
 		// Hit damage
-		/** @note this isn't visible on mobile width */
-		for (let moveid = 1; moveid <= mov_count; moveid++) {
-			d3.select("#dmgmove" + moveid).on("mouseenter", function() {
-				d3.select("i#"+this.id+" + div.move-hitdmg").style('display', 'initial');
-			});
-			d3.select("#dmgmove" + moveid).on("mouseleave", function() {
-				setTimeout(() => {
-					d3.select("i#"+ this.id + " + div.move-hitdmg").style('display', 'none');
-				}, 3000);
-			});
-		}
+		showHitDamageVisibilityOnMouseEnter(totalMoves);
 
 		// Scroll the list to the top
 		document.querySelector("#movelist_tab > table ").firstElementChild.scrollIntoView(true);
+	}).catch(function(error) {
+		console.log("Failed to find movelist", error);
 	});
 };
+
+function renderSpecialMoveCard(move) {
+	let html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">&#9733;</div>"+
+					"<div class=\"move-title\"><div class=\"move-name\" style=\"margin-bottom:5px;\">"+ move.name[jap ? 0 : 1] + "</div>"+
+					"</div></div></td>";
+	return html_string;
+}
+
+function renderMoveCard(selectedCharacterIndex, move) {
+	let html_string = "<td class=\"move-card\">";
+
+	html_string += renderMoveInfo(selectedCharacterIndex, move);
+
+	html_string += renderMoveExtra(move);
+
+	html_string += "</td>";
+
+	return html_string;
+}
+
+function renderMoveInfo(selectedCharacterIndex, move) {
+	let html_string = "<div class=\"move-info\">";
+
+	html_string += "<div class=\"move-number\">" + move.number + "</div>" +
+	"<div class=\"move-title\"><div class=\"move-name\">"+ move.name[jap ? 0 : 1] + "</div>"+
+	"<div class=\"move-hitamount\">"+ move.ds.length + (move.ds.length > 1 ? " Hits" : " Hit") + "</div></div>";
+
+	html_string += renderMoveString(move);
+
+	html_string += renderMoveHitDamage(selectedCharacterIndex, move);
+
+	html_string += "</div>";
+
+	return html_string;
+}
 
 function renderMoveString(move) {
 	let html_string = "<div class=\"move-string\">";
@@ -358,7 +316,26 @@ function renderMoveHitDamage(selectedCharacterIndex, move) {
 
 	html_string += renderThrowBreaks(move);
 
+	html_string += "</div>"; // move-hitlvlstring
+
+	html_string += renderMoveDamage(move);
+
 	html_string += "</div>";
+
+	return html_string;
+}
+
+function renderMoveDamage(move) {
+	let html_string = "<div class=\"move-dmg\"><p class=\"mv-frames\">" + move.d + "</p><p class=\"mv-id\">Damage</p><div class=\"move-hitdmg-section\"><i id=\"dmgmove" + move.number + "\" class=\"fa fa-plus-square\" aria-hidden=\"true\"></i><div class=\"move-hitdmg\">";
+
+	for (let d = 0; d < move.ds.length; d++) {
+		html_string += move.ds[d].d;
+		if (d + 1 < move.ds.length) {
+			html_string += "+";
+		}
+	}
+
+	html_string += "</div></div></div>";
 
 	return html_string;
 }
@@ -391,6 +368,77 @@ function renderThrowBreaks(move) {
 	}
 
 	return html_string;
+}
+
+function renderMoveFrames(move) {
+	// Start F
+	let html_string = "<table class=\"move-frames\">"+
+		"<tr class=\"move-startf\"><td class=\"mv-id\">Start</td><td class=\"mv-frames\">"+
+		move.s + "F</td></tr>";
+	//Start Frames Segmented
+	if (move.s > 0 ) {
+		html_string += "<tr class=\"move-startf-seg\"><td>" + move.s + "F = ";
+
+		for(var sfs = 1; sfs < move.ss.length; sfs++) {
+			html_string += move.ss[sfs].s;
+
+			if (sfs + 1 < move.ss.length) {
+				html_string += "+";
+			}
+		}
+
+		html_string +="</td></tr>";
+	}
+
+	// Block Frame
+	html_string += "<tr class=\"move-blockf\"><td class=\"mv-id\">Block</td><td class=\"mv-frames " + (move.blk > -1 ? "blkpositive\">+" : move.blk < -10 ? "blknegative\">" : "blkmild\">" ) + move.blk + "</td></tr>";
+	// Hit Adv Frame
+	html_string += "<tr class=\"move-hitf\"><td class=\"mv-id\">Hit</td>"+"<td class=\"mv-frames\">"
+		+ (move.adv > 0 ? "+" + move.adv : move.adv ) + "</td></tr></table>";
+
+	return html_string;
+}
+
+function renderMoveExtra(move) {
+	let html_string = "<div class=\"move-extra\"><div class=\"mv-section\"><div class=\"move-special\">";
+
+	// special effects/move properties
+	/** @todo extract this logic into functions (e.g. hasSpin(move) */
+	if (move.b9) {
+		html_string += "<p class=\"spin\">SPIN</p>";
+	}
+
+	if (move.b8) {
+		html_string += "<p class=\"armor\">ARMOR</p>";
+	}
+
+	if (move.bB) {
+		html_string += "<p class=\"track\">TRACK</p>";
+	}
+
+	html_string +="</div>";
+	html_string += renderMoveFrames(move);
+	html_string += "</div>";
+	html_string += "</div>";
+
+	return html_string;
+}
+
+/**
+ * @param int totalMoves
+ */
+function showHitDamageVisibilityOnMouseEnter(totalMoves) {
+	/** @note this isn't visible on mobile width */
+	for (let moveid = 1; moveid <= totalMoves; moveid++) {
+		d3.select("#dmgmove" + moveid).on("mouseenter", function() {
+			d3.select("i#"+this.id+" + div.move-hitdmg").style('display', 'initial');
+		});
+		d3.select("#dmgmove" + moveid).on("mouseleave", function() {
+			setTimeout(() => {
+				d3.select("i#"+ this.id + " + div.move-hitdmg").style('display', 'none');
+			}, 3000);
+		});
+	}
 }
 
 function loadMoveList() {
