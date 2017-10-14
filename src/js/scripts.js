@@ -4,13 +4,14 @@
  * =	mspkvp@github.com      =
  * =	©2017 tk7movespretty   =
  * ============================= */
+;(function(exports) {
 
 'use strict';
 
-var char_data = [], 
+var char_data = [],
 	ctrls_map,
 	hits_map = [];
-	
+
 /** States **/
 var selected_char = "32",
 	lang = 1,
@@ -25,7 +26,7 @@ function getCookie(){
 	if(typeof Cookies.get('tk7moves') != 'undefined'){
 		d3.select("#platf-select > option:nth-child("+(bl_choice+1)+")").attr("selected",false);
 		d3.select("#lang-select > option:nth-child("+(lang_index+1)+")").attr("selected",false);
-		
+
 		var vals = JSON.parse(Cookies.get('tk7moves'));
 		selected_char = vals.selected_char;
 		lang = vals.lang;
@@ -92,7 +93,7 @@ function setLang(val){
 	if(lang === 0)
 		jap = true;
 	else jap = false;
-	
+
 	d3.select("#lang-select").selectAll("option").each(function(){
 		if(parseInt(this.value) === lang){
 			lang_index = this.index;
@@ -119,7 +120,7 @@ function selectChar(index){
 }
 
 var togglePreferences = function() {
-	if(prefDialog) 
+	if(prefDialog)
 		d3.select("#preferences").style('visibility', 'hidden');
 	else d3.select("#preferences").style('visibility', 'visible');
 
@@ -127,7 +128,7 @@ var togglePreferences = function() {
 };
 
 var toggleCharMenu = function(){
-	if(charMenuDialog) 
+	if(charMenuDialog)
 		d3.select("#charmenu").style('display', 'none');
 	else d3.select("#charmenu").style('display', 'initial');
 
@@ -171,13 +172,13 @@ var importdata = function importdata(){
 
 var fetchmovelist = function fetchmovelist(index) {
 	d3.json("./assets/data/movelists/MOVELIST_"+index+".json", function(err, data) {
-		
+
 		selectChar(index);
 
 		var mov_count = 0;
 		for(let i=0; i<data.moves.length; i++){
 			// Number + Move Name
-			// Special 
+			// Special
 			if(!data.moves[i].number>0){
 				let html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">&#9733;</div>"+
 					"<div class=\"move-title\"><div class=\"move-name\" style=\"margin-bottom:5px;\">"+data.moves[i].name[jap?0:1]+"</div>"+
@@ -189,7 +190,7 @@ var fetchmovelist = function fetchmovelist(index) {
 			var html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">"+data.moves[i].number+"</div>"+
 			"<div class=\"move-title\"><div class=\"move-name\">"+data.moves[i].name[jap?0:1]+"</div>"+
 			"<div class=\"move-hitamount\">"+data.moves[i].ds.length+(data.moves[i].ds.length>1?" Hits":" Hit")+"</div></div>";
-			
+
 			// Move String
 			html_string += "<div class=\"move-string\">";
 			let commands = data.moves[i].command[lang].split(" ");
@@ -223,7 +224,7 @@ var fetchmovelist = function fetchmovelist(index) {
 					}
 				}
 			}
-			
+
 			// Hit Levels
 			html_string += "</div><div class=\"move-hit-dmg\"><div class=\"move-hitlvlstring\">";
 			for( let h=0; h<data.moves[i].at.length;h++){
@@ -324,3 +325,9 @@ var fetchmovelist = function fetchmovelist(index) {
 		document.querySelector("#movelist_tab > table ").firstElementChild.scrollIntoView(true);
 	});
 };
+
+exports.importdata = importdata;
+exports.toggleCharMenu = toggleCharMenu;
+exports.togglePreferences = togglePreferences
+
+})(window);
