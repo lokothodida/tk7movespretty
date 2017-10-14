@@ -209,7 +209,6 @@ function fetchMoveList(characterIndex) {
 
 function filterMoveList() {
 	let filters  = getFilters();
-	let moveList = currentMoveList;
 
 	let filteredMoveList = currentMoveList.filter(function (move) {
 		let moveString = getMoveString(move);
@@ -218,8 +217,6 @@ function filterMoveList() {
 		if (filters.moveString) {
 			includeMove = includeMove && moveString.match(filters.moveString);
 		}
-
-		console.log(filters);
 
 		if (filters.specialProperties.spin) {
 			includeMove = includeMove && move.b9;
@@ -233,11 +230,50 @@ function filterMoveList() {
 			includeMove = includeMove && move.bB;
 		}
 
+		if (!isNaN(filters.frameProperties.start.value)) {
+			includeMove = includeMove && compare(
+				move.s,
+				filters.frameProperties.start.value,
+				filters.frameProperties.start.comparison
+			);
+		}
+
+		if (!isNaN(filters.frameProperties.block.value)) {
+			includeMove = includeMove && compare(
+				move.blk,
+				filters.frameProperties.block.value,
+				filters.frameProperties.block.comparison
+			);
+		}
+
+		if (!isNaN(filters.frameProperties.hit.value)) {
+			includeMove = includeMove && compare(
+				move.adv,
+				filters.frameProperties.hit.value,
+				filters.frameProperties.hit.comparison
+			);
+		}
+
 		return includeMove;
 	});
 
 	selectChar(selectedCharacter);
 	renderMoveList(selectedCharacter, filteredMoveList);
+}
+
+function compare(value1, value2, comparison) {
+	switch (comparison) {
+		case '<=':
+			return value1 <= value2;
+		case '<':
+			return value1 < value2;
+		case '>=':
+			return value1 >= value2;
+		case '>':
+			return value1 > value2;
+		default:
+			return value1 == value2;
+	}
 }
 
 function getMoveString(move) {
@@ -284,10 +320,30 @@ function getFilters() {
 		armor: document.querySelector('#move-property-armor-filter').checked,
 	};
 
+	let frameProperties = {
+		start: {
+			value: document.querySelector('#frame-property-start-filter').value,
+			comparison: document.querySelector('#frame-property-start-comparison-filter').value,
+		},
+		block: {
+			value: document.querySelector('#frame-property-block-filter').value,
+			comparison: document.querySelector('#frame-property-block-comparison-filter').value,
+		},
+		hit: {
+			value: document.querySelector('#frame-property-hit-filter').value,
+			comparison: document.querySelector('#frame-property-hit-comparison-filter').value,
+		}
+	};
+
+	frameProperties.start.value = parseInt(frameProperties.start.value);
+	frameProperties.block.value = parseInt(frameProperties.block.value);
+	frameProperties.hit.value = parseInt(frameProperties.hit.value);
+
 	return {
 		moveString: moveString,
 		specialProperties: specialProperties,
-	}
+		frameProperties: frameProperties,
+	};
 }
 
 function renderMoveList(characterIndex, moves) {
@@ -310,7 +366,12 @@ function renderMoveList(characterIndex, moves) {
 	showHitDamageVisibilityOnMouseEnter(totalMoves);
 
 	// Scroll the list to the top
-	document.querySelector("#movelist_tab > table").firstElementChild.scrollIntoView(true);
+	let table = document.querySelector("#movelist_tab > table");
+	let firstElementChild = table.firstElementChild;
+
+	if (firstElementChild) {
+		firstElementChild.scrollIntoView(true);
+	}
 }
 
 function renderSpecialMoveCard(move) {
@@ -474,10 +535,10 @@ function renderMoveFrames(move) {
 		"<tr class=\"move-startf\"><td class=\"mv-id\">Start</td><td class=\"mv-frames\">"+
 		move.s + "F</td></tr>";
 	//Start Frames Segmented
-	if (move.s > 0 ) {
+	if (move.s > 0) {
 		html_string += "<tr class=\"move-startf-seg\"><td>" + move.s + "F = ";
 
-		for(var sfs = 1; sfs < move.ss.length; sfs++) {
+		for (var sfs = 1; sfs < move.ss.length; sfs++) {
 			html_string += move.ss[sfs].s;
 
 			if (sfs + 1 < move.ss.length) {

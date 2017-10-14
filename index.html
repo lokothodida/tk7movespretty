@@ -155,7 +155,7 @@
 			<tr class="pref-language">
 				<td class="pref-id disable-select">Move string</td>
 				<td class="pref-selection">
-					<input id="move-string-filter" onKeyUp="filterMoveList()"/>
+					<input id="move-string-filter" onkeyup="filterMoveList()"/>
 				</td>
 			</tr>
 			<tr class="pref-language">
@@ -172,6 +172,44 @@
 					<p>
 						<label>ARMOR</label>
 						<input id="move-property-armor-filter" type="checkbox" onchange="filterMoveList()"/>
+					</p>
+				</td>
+			</tr>
+			<tr class="pref-language">
+				<td class="pref-id disable-select">Frames</td>
+				<td class="pref-selection">
+					<p>
+						<label>START</label>
+						<select id="frame-property-start-comparison-filter" onchange="filterMoveList()">
+							<option>=</option>
+							<option>&lt;=</option>
+							<option>&lt;</option>
+							<option>&gt;=</option>
+							<option>&gt;</option>
+						</select>
+						<input id="frame-property-start-filter" type="number" onkeyup="filterMoveList()"/>
+					</p>
+					<p>
+						<label>BLOCK</label>
+						<select id="frame-property-block-comparison-filter" onchange="filterMoveList()">
+							<option>=</option>
+							<option>&lt;=</option>
+							<option>&lt;</option>
+							<option>&gt;=</option>
+							<option>&gt;</option>
+						</select>
+						<input id="frame-property-block-filter" type="number" onkeyup="filterMoveList()"/>
+					</p>
+					<p>
+						<label>HIT</label>
+						<select id="frame-property-hit-comparison-filter" onchange="filterMoveList()">
+							<option>=</option>
+							<option>&lt;=</option>
+							<option>&lt;</option>
+							<option>&gt;=</option>
+							<option>&gt;</option>
+						</select>
+						<input id="frame-property-hit-filter" type="number" onkeyup="filterMoveList()"/>
 					</p>
 				</td>
 			</tr>
