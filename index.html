@@ -39,11 +39,11 @@
 		    <div class="head disable-select">
 		    	<div class="char-menu-open" onclick="toggleCharMenu()">
 		    		<i class="fa fa-exchange" aria-hidden="true"></i>
-		    	</div> 
+		    	</div>
 				<div id="selected-title" class="move-head">Kazumi Mishima</div>
 				<div class="opt-buttons">
 					<div class="btn-preferences" onclick="togglePreferences()">Preferences</div>
-					<div class="btn-filter">Filter</div>
+					<div class="btn-filter" onclick="toggleFilter()">Filter</div>
 				</div>
 		    </div>
 		    <div id="movelist_tab" class="inner-table">
@@ -88,7 +88,7 @@
 					                            <td class="mv-frames">15F</td>
 					                        </tr>
 					                        <tr class="move-startf-seg">
-					                        	<td>20F = 5+5+5+5</td>					                        	
+					                        	<td>20F = 5+5+5+5</td>
 					                        </tr>
 					                        <tr class="move-blockf">
 					                            <td class="mv-id">Block</td>
@@ -146,6 +146,20 @@
 			</tr>
 		</table>
 		<div class="pref-close disable-select" onclick="togglePreferences()"><i class="fa fa-times" aria-hidden="true"></i></div>
+	</div>
+	<div id="filter" class="preferences-dialog">
+		<div class="pref-title disable-select">
+			Filter
+		</div>
+		<table class="pref-list">
+			<tr class="pref-language">
+				<td class="pref-id disable-select">Move string</td>
+				<td class="pref-selection">
+					<input id="move-string-filter" onKeyUp="filterMoveList()"/>
+				</td>
+			</tr>
+		</table>
+		<div class="pref-close disable-select" onclick="toggleFilter()"><i class="fa fa-times" aria-hidden="true"></i></div>
 	</div>
 	<video autoplay loop id="video-background" muted plays-inline>
   		<source src="./assets/video/background-smoke.mp4" type="video/mp4">

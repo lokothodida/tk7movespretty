@@ -15,10 +15,12 @@ var characterData = [],
 
 /** States **/
 var selectedCharacter = "32",
+	currentMoveList = null,
 	lang = 1,
 	langIndex = 0,
 	jap = false,
 	showPrefDialog = false,
+	showFilterDialog = false,
 	showCharMenuDialog = false,
 	buttonLayouts = ["STEAM", "PS4","XBOX"],
 	buttonLayoutChoice = 2;
@@ -126,6 +128,17 @@ var togglePreferences = function() {
 	showPrefDialog = !showPrefDialog;
 };
 
+var toggleFilter = function() {
+	if (showFilterDialog) {
+		d3.select("#filter").style('visibility', 'hidden');
+	} else {
+		d3.select("#filter").style('visibility', 'visible');
+	}
+
+	showFilterDialog = !showFilterDialog;
+};
+
+
 var toggleCharMenu = function() {
 	if (showCharMenuDialog) {
 		d3.select("#charmenu").style('display', 'none');
@@ -187,11 +200,74 @@ function fetchMoveList(characterIndex) {
 	loadJson("./assets/data/movelists/MOVELIST_" + characterIndex + ".json")
 	.then(function(data) {
 		selectChar(characterIndex);
-		renderMoveList(characterIndex, data.moves);
+		currentMoveList = data.moves;
+		renderMoveList(characterIndex, currentMoveList);
 	}).catch(function(error) {
 		console.log("Failed to find movelist", error);
 	});
 };
+
+function filterMoveList() {
+	let filters  = getFilters();
+	let moveList = currentMoveList;
+
+	let filteredMoveList = currentMoveList.filter(function (move) {
+		let moveString = getMoveString(move);
+		let includeMove = true;
+
+		if (filters.moveString) {
+			includeMove = includeMove && moveString.match(filters.moveString);
+		}
+
+		return includeMove;
+	});
+
+	selectChar(selectedCharacter);
+	renderMoveList(selectedCharacter, filteredMoveList);
+}
+
+function getMoveString(move) {
+	let moveString = "";
+	let commands = move.command[lang].split(" ");
+
+	for (let c = 0; c < commands.length; c++) {
+		let command = commands[c];
+
+		if (/[a-z]/.test(command.toLowerCase())) {
+			//html_string += "<p class=\"move-hint\">"+ command + "</p>";
+		} else {
+			for (let m = 0; m < command.length; m++) {
+				let input = "";
+				try {
+					if (isLetter(ctrlsMap[command.charAt(m)])) {
+						if (
+							ctrlsMap[command.charAt(m)] === ctrlsMap[command.charAt(m)].toLowerCase() ||
+							ctrlsMap[command.charAt(m)] === "N"
+						) {
+							input = ctrlsMap[command.charAt(m)].toLowerCase();
+						} else {
+							input = ctrlsMap[command.charAt(m)].toLowerCase();
+						}
+					} else if (!isNaN(ctrlsMap[command.charAt(m)].charAt(0))) {
+						input = ctrlsMap[command.charAt(m)];
+					}
+				} catch (exception) {
+				}
+
+				moveString += input;
+			}
+		}
+	}
+
+	return moveString;
+}
+
+function getFilters() {
+	let moveString = document.querySelector('#move-string-filter').value;
+	return {
+		moveString: moveString,
+	}
+}
 
 function renderMoveList(characterIndex, moves) {
 	let totalMoves = 0;
@@ -459,8 +535,10 @@ function loadJson(path) {
 	});
 }
 
-exports.importdata = importdata;
-exports.toggleCharMenu = toggleCharMenu;
-exports.togglePreferences = togglePreferences
+exports.importdata        = importdata;
+exports.toggleCharMenu    = toggleCharMenu;
+exports.togglePreferences = togglePreferences;
+exports.toggleFilter	  = toggleFilter;
+exports.filterMoveList    = filterMoveList;
 
 })(window);
