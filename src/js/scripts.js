@@ -210,9 +210,13 @@ function fetchMoveList(characterIndex) {
 function filterMoveList() {
 	let filters  = getFilters();
 
-	let filteredMoveList = currentMoveList.filter(function (move) {
-		let moveString = getMoveString(move);
+	let filteredMoveList = currentMoveList.filter(function(move) {
+		let moveString  = getMoveString(move);
 		let includeMove = true;
+
+		if (filters.moveName) {
+			includeMove = includeMove && move.name[jap ? 0 : 1].toLowerCase().match(filters.moveName.toLowerCase());
+		}
 
 		if (filters.moveString) {
 			includeMove = includeMove && moveString.match(filters.moveString);
@@ -261,8 +265,8 @@ function filterMoveList() {
 	renderMoveList(selectedCharacter, filteredMoveList);
 }
 
-function compare(value1, value2, comparison) {
-	switch (comparison) {
+function compare(value1, value2, operator) {
+	switch (operator) {
 		case '<=':
 			return value1 <= value2;
 		case '<':
@@ -313,6 +317,7 @@ function getMoveString(move) {
 }
 
 function getFilters() {
+	let moveName = document.querySelector('#move-name-filter').value;
 	let moveString = document.querySelector('#move-string-filter').value;
 	let specialProperties = {
 		spin: document.querySelector('#move-property-spin-filter').checked,
@@ -340,6 +345,7 @@ function getFilters() {
 	frameProperties.hit.value = parseInt(frameProperties.hit.value);
 
 	return {
+		moveName: moveName,
 		moveString: moveString,
 		specialProperties: specialProperties,
 		frameProperties: frameProperties,
