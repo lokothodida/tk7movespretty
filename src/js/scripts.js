@@ -18,8 +18,8 @@ var selectedCharacter = "32",
 	lang = 1,
 	langIndex = 0,
 	jap = false,
-	prefDialog = false,
-	charMenuDialog = false,
+	showPrefDialog = false,
+	showCharMenuDialog = false,
 	buttonLayouts = ["STEAM", "PS4","XBOX"],
 	buttonLayoutChoice = 2;
 
@@ -79,31 +79,26 @@ String.prototype.hexDecode = function() {
     return back;
 }
 
-function toHexArr(str) {
-	var result = [];
-	for (var i=0; i<str.length; i++) {
-	  result.push("\\u"+str.charCodeAt(i).toString(16));
-	}
-	return result;
-}
-
-function setLang(val){
+function setLang(val) {
 	lang = parseInt(val);
 
-	if(lang === 0)
+	if (lang === 0) {
 		jap = true;
-	else jap = false;
+	} else {
+		jap = false;
+	}
 
 	d3.select("#lang-select").selectAll("option").each(function(){
-		if(parseInt(this.value) === lang){
+		if (parseInt(this.value) === lang) {
 			langIndex = this.index;
 		}
 	});
+
 	setCookie();
-	fetchmovelist(selectedCharacter);
+	fetchMoveList(selectedCharacter);
 }
 
-function selectChar(index){
+function selectChar(index) {
 	//remove other moves
 	d3.select(".move-table").remove();
 	d3.select(".char-movelist .inner-table").html("<table class=\"move-table\"></table>");
@@ -116,33 +111,35 @@ function selectChar(index){
 	d3.select("#selected-title").text(characterData[selectedCharacter].n);
 	setCookie();
 
-	if(charMenuDialog) toggleCharMenu();
+	if (showCharMenuDialog) {
+		toggleCharMenu();
+	}
 }
 
 var togglePreferences = function() {
-	if (prefDialog) {
+	if (showPrefDialog) {
 		d3.select("#preferences").style('visibility', 'hidden');
 	} else {
 		d3.select("#preferences").style('visibility', 'visible');
 	}
 
-	prefDialog = !prefDialog;
+	showPrefDialog = !showPrefDialog;
 };
 
 var toggleCharMenu = function() {
-	if (charMenuDialog) {
+	if (showCharMenuDialog) {
 		d3.select("#charmenu").style('display', 'none');
 	} else {
 		d3.select("#charmenu").style('display', 'initial');
 	}
 
-	charMenuDialog = !charMenuDialog;
+	showCharMenuDialog = !showCharMenuDialog;
 };
 
 var changePlatform = function(index) {
 	buttonLayoutChoice = index;
 	setCookie();
-	fetchmovelist(selectedCharacter);
+	fetchMoveList(selectedCharacter);
 };
 
 var importdata = function() {
@@ -166,58 +163,63 @@ var importdata = function() {
 		for (let i = 0; i < data.length; i++) {
 			let tname = data[i].c_index.split(" ");
 
-			if(data[i].i == "11") {
+			if (data[i].i == "11") {
 				tname = data[i].c.split("-");
 			}
 
-			d3.select(".char-menu > .inner-table > table").append("tr")
+			d3.select(".char-menu > .inner-table > table")
+				.append("tr")
 				.html("<td class=\"char-card\" id=\""+data[i].c.split(" ")[0]+"\"><img src=\"./assets/chars/"+tname.join("").toLowerCase()+"_thumbnail.png\"><p>"+data[i].c+"</p></td>");
+
 			d3.select("#"+data[i].c.split(" ")[0]).on("click", function() {
-				fetchmovelist(data[i].i);
+				fetchMoveList(data[i].i);
 			});
 		}
 		let id_string = characterData[selectedCharacter].c.split(" ");
 		d3.select("#"+id_string[0]).classed("selected", true);
 		d3.select("#selected-title").text(characterData[selectedCharacter].n);
 
-		fetchmovelist(selectedCharacter);
+		fetchMoveList(selectedCharacter);
 	});
 };
 
-var fetchmovelist = function fetchmovelist(characterIndex) {
+function fetchMoveList(characterIndex) {
 	loadJson("./assets/data/movelists/MOVELIST_" + characterIndex + ".json")
 	.then(function(data) {
 		selectChar(characterIndex);
-
-		let totalMoves = 0;
-
-		for (let i = 0; i < data.moves.length; i++) {
-			let move          = data.moves[i];
-			let isSpecialMove = !move.number > 0;
-			let tableRow      = d3.select(".move-table").append("tr");
-
-			if (isSpecialMove) {
-				tableRow.html(renderSpecialMoveCard(move));
-			} else {
-				totalMoves++;
-				tableRow.html(renderMoveCard(characterIndex, move));
-			}
-		}
-
-		// Hit damage
-		showHitDamageVisibilityOnMouseEnter(totalMoves);
-
-		// Scroll the list to the top
-		document.querySelector("#movelist_tab > table ").firstElementChild.scrollIntoView(true);
+		renderMoveList(characterIndex, data.moves);
 	}).catch(function(error) {
 		console.log("Failed to find movelist", error);
 	});
 };
 
+function renderMoveList(characterIndex, moves) {
+	let totalMoves = 0;
+
+	for (let i = 0; i < moves.length; i++) {
+		let move          = moves[i];
+		let isSpecialMove = !move.number > 0;
+		let tableRow      = d3.select(".move-table").append("tr");
+
+		if (isSpecialMove) {
+			tableRow.html(renderSpecialMoveCard(move));
+		} else {
+			totalMoves++;
+			tableRow.html(renderMoveCard(characterIndex, move));
+		}
+	}
+
+	// Hit damage
+	showHitDamageVisibilityOnMouseEnter(totalMoves);
+
+	// Scroll the list to the top
+	document.querySelector("#movelist_tab > table").firstElementChild.scrollIntoView(true);
+}
+
 function renderSpecialMoveCard(move) {
 	let html_string = "<td class=\"move-card\"><div class=\"move-info\"><div class=\"move-number\">&#9733;</div>"+
-					"<div class=\"move-title\"><div class=\"move-name\" style=\"margin-bottom:5px;\">"+ move.name[jap ? 0 : 1] + "</div>"+
-					"</div></div></td>";
+					  "<div class=\"move-title\"><div class=\"move-name\" style=\"margin-bottom:5px;\">"+ move.name[jap ? 0 : 1] + "</div>"+
+					  "</div></div></td>";
 	return html_string;
 }
 
@@ -237,13 +239,11 @@ function renderMoveInfo(selectedCharacterIndex, move) {
 	let html_string = "<div class=\"move-info\">";
 
 	html_string += "<div class=\"move-number\">" + move.number + "</div>" +
-	"<div class=\"move-title\"><div class=\"move-name\">"+ move.name[jap ? 0 : 1] + "</div>"+
-	"<div class=\"move-hitamount\">"+ move.ds.length + (move.ds.length > 1 ? " Hits" : " Hit") + "</div></div>";
+				   "<div class=\"move-title\"><div class=\"move-name\">"+ move.name[jap ? 0 : 1] + "</div>"+
+				   "<div class=\"move-hitamount\">"+ move.ds.length + (move.ds.length > 1 ? " Hits" : " Hit") + "</div></div>";
 
 	html_string += renderMoveString(move);
-
 	html_string += renderMoveHitDamage(selectedCharacterIndex, move);
-
 	html_string += "</div>";
 
 	return html_string;
@@ -251,10 +251,11 @@ function renderMoveInfo(selectedCharacterIndex, move) {
 
 function renderMoveString(move) {
 	let html_string = "<div class=\"move-string\">";
-	let commands = move.command[lang].split(" ");
+	let commands    = move.command[lang].split(" ");
 
 	for (let c = 0; c < commands.length; c++) {
 		let command = commands[c];
+
 		if (/[a-z]/.test(command.toLowerCase())) {
 			html_string += "<p class=\"move-hint\">"+ command + "</p>";
 		} else {
@@ -439,10 +440,6 @@ function showHitDamageVisibilityOnMouseEnter(totalMoves) {
 			}, 3000);
 		});
 	}
-}
-
-function loadMoveList() {
-
 }
 
 /**
