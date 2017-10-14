@@ -219,6 +219,20 @@ function filterMoveList() {
 			includeMove = includeMove && moveString.match(filters.moveString);
 		}
 
+		console.log(filters);
+
+		if (filters.specialProperties.spin) {
+			includeMove = includeMove && move.b9;
+		}
+
+		if (filters.specialProperties.armor) {
+			includeMove = includeMove && move.b8;
+		}
+
+		if (filters.specialProperties.track) {
+			includeMove = includeMove && move.bB;
+		}
+
 		return includeMove;
 	});
 
@@ -264,8 +278,15 @@ function getMoveString(move) {
 
 function getFilters() {
 	let moveString = document.querySelector('#move-string-filter').value;
+	let specialProperties = {
+		spin: document.querySelector('#move-property-spin-filter').checked,
+		track: document.querySelector('#move-property-track-filter').checked,
+		armor: document.querySelector('#move-property-armor-filter').checked,
+	};
+
 	return {
 		moveString: moveString,
+		specialProperties: specialProperties,
 	}
 }
 

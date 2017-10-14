@@ -158,6 +158,23 @@
 					<input id="move-string-filter" onKeyUp="filterMoveList()"/>
 				</td>
 			</tr>
+			<tr class="pref-language">
+				<td class="pref-id disable-select">Special Properties</td>
+				<td class="pref-selection">
+					<p>
+						<label>SPIN</label>
+						<input id="move-property-spin-filter" type="checkbox" onchange="filterMoveList()"/>
+					</p>
+					<p>
+						<label>TRACK</label>
+						<input id="move-property-track-filter" type="checkbox" onchange="filterMoveList()"/>
+					</p>
+					<p>
+						<label>ARMOR</label>
+						<input id="move-property-armor-filter" type="checkbox" onchange="filterMoveList()"/>
+					</p>
+				</td>
+			</tr>
 		</table>
 		<div class="pref-close disable-select" onclick="toggleFilter()"><i class="fa fa-times" aria-hidden="true"></i></div>
 	</div>
