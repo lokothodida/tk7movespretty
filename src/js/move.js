@@ -63,3 +63,80 @@ export function moveHasArmor(move) {
 export function moveHasTracking(move) {
     return move.bB;
 }
+
+export class Move {
+    constructor(moveData, language, isJapanese, controlsMap) {
+        this._moveData = moveData;
+        this._language = language;
+        this._isJapanese = isJapanese;
+        this._controlsMap = controlsMap;
+    }
+
+    getCommands() {
+        return this._moveData.command[this._language].split(" ");
+    }
+
+    getString() {
+        return getMoveString(this._moveData);
+    }
+
+    getThrowBreak() {
+        switch (this._moveData.br[0].b) {
+            case 1:
+                return "1";
+            case 2:
+                return "2";
+            case 3:
+                return "1/2";
+            case 4:
+                return "1+2";
+            default:
+                return "";
+        }
+    }
+
+    hasSpin() {
+        return this._moveData.b9;
+    }
+
+    hasArmor() {
+        return this._moveData.b8;
+
+    }
+
+    hasTracking() {
+        return this._moveData.bB;
+    }
+}
+
+export function commandInputIsMovement(input) {
+    return input && isLetter(input);
+}
+
+export function commandInputIsNeutral(input) {
+    return input === "N";
+}
+
+export function commandInputIsHeld(input) {
+    return input && input === input.toUpperCase();
+}
+
+export function commandInputIsAttack(input) {
+    return input && !isNaN(input.charAt(0));
+}
+
+export class Command {
+    constructor(command, controlsMap) {
+        this._command = command;
+        this._controlsMap = controlsMap;
+        //ctrlsMap[command.charAt(m)]
+    }
+
+    isHeld() {
+
+    }
+
+    get() {
+
+    }
+}

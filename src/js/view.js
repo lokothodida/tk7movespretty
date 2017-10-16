@@ -30,7 +30,7 @@ export function renderMoveList(characterIndex, moves, hitsMap, jap, lang, ctrlsM
     }
 }
 
-export function renderSpecialMoveCard(move, jap) {
+function renderSpecialMoveCard(move, jap) {
     return `
     <td class="move-card">
         <div class="move-info">
@@ -45,7 +45,7 @@ export function renderSpecialMoveCard(move, jap) {
     `;
 }
 
-export function renderMoveCard(selectedCharacterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout) {
+function renderMoveCard(selectedCharacterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout) {
     return `
     <td class="move-card">
         ${renderMoveInfo(selectedCharacterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout)}
@@ -54,7 +54,7 @@ export function renderMoveCard(selectedCharacterIndex, move, hitsMap, jap, lang,
     `;
 }
 
-export function renderMoveInfo(selectedCharacterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout) {
+function renderMoveInfo(selectedCharacterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout) {
     return `
     <div class="move-info">
         <div class="move-number">${move.number}</div>
@@ -68,7 +68,7 @@ export function renderMoveInfo(selectedCharacterIndex, move, hitsMap, jap, lang,
     `;
 }
 
-export function renderMoveString(move, lang, ctrlsMap, buttonLayout) {
+function renderMoveString(move, lang, ctrlsMap, buttonLayout) {
     let html_string = "<div class=\"move-string\">";
     let commands    = move.command[lang].split(" ");
 
@@ -88,28 +88,24 @@ export function renderMoveString(move, lang, ctrlsMap, buttonLayout) {
 }
 
 function renderMoveCommand(command, ctrlsMap, buttonLayout) {
-    let html_string = '';
+    return command.split("").map((char) => {
+        let input = ctrlsMap[char];
 
-    for (let m = 0; m < command.length; m++) {
-        /** @todo extract this logic out */
-        let input = ctrlsMap[command.charAt(m)];
-
-        if (input && utils.isLetter(input)) {
-            if (input === input.toLowerCase() || input === "N") {
-                html_string += "<img class=\"move-arrow\" src=\"./assets/arrow/"+ input.toLowerCase() + ".svg\">";
-            } else {
-                html_string += "<img class=\"move-arrow\" src=\"./assets/arrow/"+ input.toLowerCase() + "p.svg\">";
-            }
-        } else if (input && !isNaN(input.charAt(0))) {
-            html_string += "<img class=\"move-button\" src=\"./assets/button/"+ buttonLayout +"/"+ input +".svg\">";
+        if (Move.commandInputIsMovement(input) || Move.commandInputIsNeutral(input)) {
+            return `<img class="move-arrow" src="./assets/arrow/${input.toLowerCase()}.svg">`;
+        } else if (Move.commandInputIsMovement(input) && Move.commandInputIsHeld(input)) {
+            return `<img class="move-arrow" src="./assets/arrow/${input.toLowerCase()}p.svg">`;
+        } else if (Move.commandInputIsAttack(input)) {
+            return `<img class="move-button" src="./assets/button/${buttonLayout}/${input}.svg">`;
         } else if (input === ">") {
-            html_string += "<p class=\"move-hint\" style=\"color:#37ff05;font-size:20px;\"><i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i></p>";
+            return `
+            <p class="move-hint" style="color:#37ff05;font-size:20px;">
+                <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </p>`;
         } else {
-            html_string += "<p class=\"move-hint\">"+ command.charAt(m) +"</p>";
+            return `<p class="move-hint">${char}</p>`;
         }
-    }
-
-    return html_string;
+    }).join("");
 }
 
 /**
@@ -118,7 +114,7 @@ function renderMoveCommand(command, ctrlsMap, buttonLayout) {
  * @param hitsMap
  * @return string
  */
-export function renderMoveHitDamage(selectedCharacterIndex, move, hitsMap) {
+function renderMoveHitDamage(selectedCharacterIndex, move, hitsMap) {
     return `
     <div class="move-hit-dmg">
         <div class="move-hitlvlstring">
@@ -144,7 +140,7 @@ function renderMoveHitLevel(hitLevel, hitType) {
     `;
 }
 
-export function renderMoveDamage(move) {
+function renderMoveDamage(move) {
     return `
     <div class="move-dmg">
         <p class="mv-frames">${move.d}</p>
@@ -159,7 +155,7 @@ export function renderMoveDamage(move) {
     `;
 }
 
-export function renderThrowBreaks(move) {
+function renderThrowBreaks(move) {
     return `
     <i class="fa fa-caret-right" aria-hidden="true"></i>
     <p class="mv-hitlvl">
@@ -168,7 +164,7 @@ export function renderThrowBreaks(move) {
     `
 }
 
-export function renderMoveFrames(move) {
+function renderMoveFrames(move) {
     return `
     <table class="move-frames">
         <tr class="move-startf">
@@ -205,7 +201,7 @@ function renderStartFramesSegmented(move) {
     </tr>`;
 }
 
-export function renderMoveExtra(move) {
+function renderMoveExtra(move) {
     return `
     <div class="move-extra">
         <div class="mv-section">
@@ -223,7 +219,7 @@ export function renderMoveExtra(move) {
 /**
  * @param int totalMoves
  */
-export function showHitDamageVisibilityOnMouseEnter(totalMoves) {
+function showHitDamageVisibilityOnMouseEnter(totalMoves) {
     /** @note this isn't visible on mobile width */
     for (let moveid = 1; moveid <= totalMoves; moveid++) {
         d3.select("#dmgmove" + moveid).on("mouseenter", function() {
