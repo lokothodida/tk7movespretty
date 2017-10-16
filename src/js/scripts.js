@@ -5,7 +5,6 @@
  * =	©2017 tk7movespretty   =
  * ============================= */
 import * as d3 from 'd3';
-import Cookies from 'cookies';
 import * as View from './view.js';
 import * as filters from './filters.js';
 import { loadJson } from './utils.js';
@@ -106,7 +105,7 @@ function importData() {
         return loadJson("./assets/data/map_chars.json");
     }).then(function(data) {
         let selectedCharacter = state.get('selectedCharacter');
-        let characterData = state.get('characterData');
+        let characterData     = state.get('characterData');
 
         for (let h in data) {
             characterData[data[h].i] = {
@@ -117,21 +116,28 @@ function importData() {
 
         state.set('characterData', characterData);
 
-        for (let i = 0; i < data.length; i++) {
-            let tname = data[i].c_index.split(" ");
+        let table = d3.select(".char-menu > .inner-table > table");
 
-            if (data[i].i == "11") {
-                tname = data[i].c.split("-");
+        data.forEach((character) => {
+            let tname = character.c_index.split(" ");
+
+            // Special case for JACK-7
+            if (character.i == "11") {
+                tname = character.c.split("-");
             }
 
-            d3.select(".char-menu > .inner-table > table")
-                .append("tr")
-                .html("<td class=\"char-card\" id=\""+data[i].c.split(" ")[0]+"\"><img src=\"./assets/chars/"+tname.join("").toLowerCase()+"_thumbnail.png\"><p>"+data[i].c+"</p></td>");
+            table.append("tr")
+                .html(`
+                <td class="char-card" id="${character.c.split(" ")[0]}">
+                    <img src="./assets/chars/${tname.join("").toLowerCase()}_thumbnail.png">
+                    <p>${character.c}</p>
+                </td>
+                `);
 
-            d3.select("#"+data[i].c.split(" ")[0]).on("click", function() {
-                fetchMoveList(data[i].i);
+            d3.select("#"+ character.c.split(" ")[0]).on("click", function() {
+                fetchMoveList(character.i);
             });
-        }
+        });
 
         let id_string = characterData[selectedCharacter].c.split(" ");
         d3.select("#"+id_string[0]).classed("selected", true);
