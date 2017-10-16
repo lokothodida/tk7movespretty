@@ -1,18 +1,16 @@
-import { getMoveString } from './move.js';
-
 /**
- * @param {object[]} currentMoveList
- * @param {bool} jap
+ * @param {Move[]} moves
+ * @return {Move[]}
  */
-export function filterMoveList(currentMoveList, jap, lang, ctrlsMap) {
-	let filters  = getFilters();
+export function filterMoveList(moves) {
+	let filters = getFilters();
 
-	return currentMoveList.filter(function(move) {
-		let moveString  = getMoveString(move, lang, ctrlsMap);
+	return moves.filter(function(move) {
+		let moveString = move.getString();
 		let includeMove = true;
 
 		if (filters.moveName) {
-			includeMove = includeMove && move.name[jap ? 0 : 1].toLowerCase().match(filters.moveName.toLowerCase());
+			includeMove = includeMove && move.getName().toLowerCase().match(filters.moveName.toLowerCase());
 		}
 
 		if (filters.moveString) {
@@ -20,20 +18,20 @@ export function filterMoveList(currentMoveList, jap, lang, ctrlsMap) {
 		}
 
 		if (filters.specialProperties.spin) {
-			includeMove = includeMove && move.b9;
+			includeMove = includeMove && move.hasSpin();
 		}
 
 		if (filters.specialProperties.armor) {
-			includeMove = includeMove && move.b8;
+			includeMove = includeMove && move.hasArmor();
 		}
 
 		if (filters.specialProperties.track) {
-			includeMove = includeMove && move.bB;
+			includeMove = includeMove && move.hasTracking();
 		}
 
 		if (!isNaN(filters.frameProperties.start.value)) {
 			includeMove = includeMove && compare(
-				move.s,
+				move.getStartUpFrames(),
 				filters.frameProperties.start.value,
 				filters.frameProperties.start.comparison
 			);
@@ -41,7 +39,7 @@ export function filterMoveList(currentMoveList, jap, lang, ctrlsMap) {
 
 		if (!isNaN(filters.frameProperties.block.value)) {
 			includeMove = includeMove && compare(
-				move.blk,
+				move.getBlockFrames(),
 				filters.frameProperties.block.value,
 				filters.frameProperties.block.comparison
 			);
@@ -49,7 +47,7 @@ export function filterMoveList(currentMoveList, jap, lang, ctrlsMap) {
 
 		if (!isNaN(filters.frameProperties.hit.value)) {
 			includeMove = includeMove && compare(
-				move.adv,
+				move.getAdvantageFrames(),
 				filters.frameProperties.hit.value,
 				filters.frameProperties.hit.comparison
 			);
@@ -86,7 +84,7 @@ function getFilters() {
 
 	frameProperties.start.value = parseInt(frameProperties.start.value);
 	frameProperties.block.value = parseInt(frameProperties.block.value);
-	frameProperties.hit.value = parseInt(frameProperties.hit.value);
+	frameProperties.hit.value   = parseInt(frameProperties.hit.value);
 
 	return {
 		moveName: moveName,

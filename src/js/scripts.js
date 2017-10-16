@@ -10,6 +10,7 @@ import * as View from './view.js';
 import * as filters from './filters.js';
 import { loadJson } from './utils.js';
 import State from './state.js';
+import Move from './move.js';
 
 (function(exports) {
 'use strict';
@@ -161,35 +162,38 @@ function importData() {
 
 function fetchMoveList(characterIndex) {
     loadJson("./assets/data/movelists/MOVELIST_" + characterIndex + ".json")
-    .then(function(data) {
+    .then(parseMoveList)
+    .then(function(moves) {
         selectCharacter(characterIndex);
-        let currentMoveList = data.moves;
-        let hitsMap = state.get('hitsMap');
-        let jap = state.get('jap');
-        let lang = state.get('lang');
-        let ctrlsMap = state.get('ctrlsMap');
-        let buttonLayouts = state.get('buttonLayouts');
+        state.set('currentMoveList', moves);
+        let buttonLayouts      = state.get('buttonLayouts');
         let buttonLayoutChoice = state.get('buttonLayoutChoice');
 
-        View.renderMoveList(characterIndex, currentMoveList, hitsMap, jap, lang, ctrlsMap, buttonLayouts[buttonLayoutChoice]);
+        View.renderMoveList(moves, buttonLayouts[buttonLayoutChoice]);
     }).catch(function(error) {
-        console.log("Failed to find movelist", error);
+        console.log("Failed to render movelist", error);
+    });
+}
+
+function parseMoveList(data) {
+    let hitsMap  = state.get('hitsMap');
+    let jap      = state.get('jap');
+    let lang     = state.get('lang');
+    let ctrlsMap = state.get('ctrlsMap');
+
+    return data.moves.map((move) => {
+        return new Move(move, lang, jap, ctrlsMap, hitsMap);
     });
 }
 
 function filterMoveList() {
-    let currentMoveList = state.get('currentMoveList');
-    let jap = state.get('jap');
-    let lang = state.get('lang');
-    let hitsMap = state.get('hitsMap');
-    let ctrlsMap = state.get('ctrlsMap');
-    let buttonLayouts = state.get('buttonLayouts');
+    let selectedCharacter  = state.get('selectedCharacter');
+    let filteredMoveList   = filters.filterMoveList(state.get('currentMoveList'));
+    let buttonLayouts      = state.get('buttonLayouts');
     let buttonLayoutChoice = state.get('buttonLayoutChoice');
-    let selectedCharacter = state.get('selectedCharacter');
-    let filteredMoveList = filters.filterMoveList(currentMoveList, jap, lang, ctrlsMap);
 
     selectCharacter(selectedCharacter);
-    View.renderMoveList(selectedCharacter, filteredMoveList, hitsMap, jap, lang, ctrlsMap, buttonLayouts[buttonLayoutChoice]);
+    View.renderMoveList(filteredMoveList, buttonLayouts[buttonLayoutChoice]);
 }
 
 exports.importData        = importData;

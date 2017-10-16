@@ -9,7 +9,7 @@ export function getMoveString(move, lang, ctrlsMap) {
         let command = commands[c];
 
         if (/[a-z]/.test(command.toLowerCase())) {
-            moveString += "<p class=\"move-hint\">"+ command + "</p>";
+            moveString += command;
         } else {
             for (let m = 0; m < command.length; m++) {
                 let input = "";
@@ -37,47 +37,53 @@ export function getMoveString(move, lang, ctrlsMap) {
     return moveString;
 }
 
-export function getMoveThrowBreak(move) {
-    switch (move.br[0].b) {
-        case 1:
-            return "1";
-        case 2:
-            return "2";
-        case 3:
-            return "1/2";
-        case 4:
-            return "1+2";
-        default:
-            return "";
-    }
-}
-
-export function moveHasSpin(move) {
-    return move.b9;
-}
-
-export function moveHasArmor(move) {
-    return move.b8;
-}
-
-export function moveHasTracking(move) {
-    return move.bB;
-}
-
-export class Move {
-    constructor(moveData, language, isJapanese, controlsMap) {
+export default class Move {
+    constructor(moveData, language, isJapanese, controlsMap, hitsMap) {
         this._moveData = moveData;
         this._language = language;
         this._isJapanese = isJapanese;
         this._controlsMap = controlsMap;
+        this._hits = this._moveData.at.map((hit) => new Hit(hit, hitsMap));
+        this._commands = this._moveData
+            .command[this._language]
+            .split(" ")
+            .map((cmd) => new Command(cmd, controlsMap));
+    }
+
+    getName() {
+        return this._moveData.name[this._isJapanese ? 0 : 1];
+    }
+
+    getNumber() {
+        return this._moveData.number;
+    }
+
+    getTotalHits() {
+        return this._moveData.ds.length;
+    }
+
+    getHits() {
+        return this._hits;
+    }
+
+    getTotalDamage() {
+        return this._moveData.d;
+    }
+
+    getDamages() {
+        return this._moveData.ds.map(damage => damage.d);
     }
 
     getCommands() {
-        return this._moveData.command[this._language].split(" ");
+        return this._commands;
     }
 
     getString() {
-        return getMoveString(this._moveData);
+        return getMoveString(this._moveData, this._language, this._controlsMap);
+    }
+
+    hasThrow() {
+        return this._moveData.br.length > 0;
     }
 
     getThrowBreak() {
@@ -95,6 +101,30 @@ export class Move {
         }
     }
 
+    getThrowBreakFrames() {
+        return this._moveData.br[0].f;
+    }
+
+    getStartUpFrames() {
+        return this._moveData.s;
+    }
+
+    hasSegmentedStartFrames() {
+        return this._moveData.s > 0;
+    }
+
+    getSegmentedStartFrames() {
+        return this._moveData.ss.slice(1).map(sfs => sfs.s);
+    }
+
+    getBlockFrames() {
+        return this._moveData.blk;
+    }
+
+    getAdvantageFrames() {
+        return this._moveData.adv;
+    }
+
     hasSpin() {
         return this._moveData.b9;
     }
@@ -109,34 +139,70 @@ export class Move {
     }
 }
 
-export function commandInputIsMovement(input) {
-    return input && isLetter(input);
-}
-
-export function commandInputIsNeutral(input) {
-    return input === "N";
-}
-
-export function commandInputIsHeld(input) {
-    return input && input === input.toUpperCase();
-}
-
-export function commandInputIsAttack(input) {
-    return input && !isNaN(input.charAt(0));
-}
-
-export class Command {
+class Command {
     constructor(command, controlsMap) {
         this._command = command;
         this._controlsMap = controlsMap;
-        //ctrlsMap[command.charAt(m)]
+        this._inputs = command
+            .split("")
+            .map((char) => new Input(controlsMap[char]));
+    }
+
+    getSymbol() {
+        return this._command;
+    }
+
+    hasLetter() {
+        return /[a-z]/.test(this._command.toLowerCase());
+    }
+
+    getInputs() {
+        return this._inputs;
+    }
+}
+
+class Input {
+    constructor(inputData) {
+        this._inputData = inputData;
+    }
+
+    getSymbol() {
+        return this._inputData;
+    }
+
+    isLetter() {
+        return (typeof this._inputData === 'string') &&
+                this._inputData.toLowerCase() != this._inputData.toUpperCase();
+    }
+
+    isMovement() {
+        return this._inputData && this.isLetter();
+    }
+
+    isNeutral() {
+        return this._inputData === "N";
     }
 
     isHeld() {
-
+        return this._inputData && this._inputData === this._inputData.toUpperCase();
     }
 
-    get() {
+    isAttack() {
+        return this._inputData && this._inputData && !isNaN(this._inputData.charAt(0));
+    }
+}
 
+class Hit {
+    constructor(hitData, hitsMap) {
+        this._hitData = hitData;
+        this._hitsMap = hitsMap;
+    }
+
+    getLevel() {
+        return this._hitsMap[this._hitData.l];
+    }
+
+    isThrow() {
+        return this._hitData.t > 0;
     }
 }

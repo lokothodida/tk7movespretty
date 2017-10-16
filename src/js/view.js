@@ -2,21 +2,20 @@ import * as d3 from 'd3';
 import * as utils from './utils.js';
 import * as Move from './move.js';
 
-export function renderMoveList(characterIndex, moves, hitsMap, jap, lang, ctrlsMap, buttonLayout) {
+export function renderMoveList(moves, buttonLayout) {
     let totalMoves = 0;
 
-    for (let i = 0; i < moves.length; i++) {
-        let move          = moves[i];
-        let isSpecialMove = !move.number > 0;
+    moves.map((move) => {
+        let isSpecialMove = !move.getNumber() > 0;
         let tableRow      = d3.select(".move-table").append("tr");
 
         if (isSpecialMove) {
-            tableRow.html(renderSpecialMoveCard(move, jap));
+            tableRow.html(renderSpecialMoveCard(move));
         } else {
             totalMoves++;
-            tableRow.html(renderMoveCard(characterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout));
+            tableRow.html(renderMoveCard(move, buttonLayout));
         }
-    }
+    });
 
     // Hit damage
     showHitDamageVisibilityOnMouseEnter(totalMoves);
@@ -37,7 +36,7 @@ function renderSpecialMoveCard(move, jap) {
             <div class="move-number">&#9733;</div>
             <div class="move-title">
                 <div class="move-name" style="margin-bottom:5px;">
-                    ${move.name[jap ? 0 : 1]}
+                    ${move.getName()}
                 </div>
             </div>
         </div>
@@ -45,37 +44,39 @@ function renderSpecialMoveCard(move, jap) {
     `;
 }
 
-function renderMoveCard(selectedCharacterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout) {
+function renderMoveCard(move, buttonLayout) {
     return `
     <td class="move-card">
-        ${renderMoveInfo(selectedCharacterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout)}
+        ${renderMoveInfo(move, buttonLayout)}
         ${renderMoveExtra(move)}
     </td>
     `;
 }
 
-function renderMoveInfo(selectedCharacterIndex, move, hitsMap, jap, lang, ctrlsMap, buttonLayout) {
+function renderMoveInfo(move, buttonLayout) {
     return `
     <div class="move-info">
-        <div class="move-number">${move.number}</div>
+        <div class="move-number">${move.getNumber()}</div>
         <div class="move-title">
-            <div class="move-name">${move.name[jap ? 0 : 1]}</div>
-            <div class="move-hitamount">${move.ds.length + (move.ds.length > 1 ? " Hits" : " Hit")}</div>
+            <div class="move-name">${move.getName()}</div>
+            <div class="move-hitamount">
+                ${move.getTotalHits()} ${move.getHits().length ? " Hits" : " Hit"}
+            </div>
         </div>
-        ${renderMoveString(move, lang, ctrlsMap, buttonLayout)}
-        ${renderMoveHitDamage(selectedCharacterIndex, move, hitsMap)}
+        ${renderMoveString(move, buttonLayout)}
+        ${renderMoveHitDamage(move)}
     </div>
     `;
 }
 
-function renderMoveString(move, lang, ctrlsMap, buttonLayout) {
+function renderMoveString(move, buttonLayout) {
     return `
     <div class="move-string">
-        ${move.command[lang].split(" ").map((command) => {
-            if (/[a-z]/.test(command.toLowerCase())) {
-                return renderMoveHint(command);
+        ${move.getCommands().map((command) => {
+            if (command.hasLetter()) {
+                return renderMoveHint(command.getSymbol());
             } else {
-                return renderMoveCommand(command, ctrlsMap, buttonLayout);
+                return renderMoveCommand(command, buttonLayout);
             }
         }).join("")}
     </div>
@@ -86,23 +87,21 @@ function renderMoveHint(hint) {
     return `<p class="move-hint">${hint}</p>`;
 }
 
-function renderMoveCommand(command, ctrlsMap, buttonLayout) {
-    return command.split("").map((char) => {
-        let input = ctrlsMap[char];
-
-        if (Move.commandInputIsMovement(input) || Move.commandInputIsNeutral(input)) {
-            return `<img class="move-arrow" src="./assets/arrow/${input.toLowerCase()}.svg">`;
-        } else if (Move.commandInputIsMovement(input) && Move.commandInputIsHeld(input)) {
-            return `<img class="move-arrow" src="./assets/arrow/${input.toLowerCase()}p.svg">`;
-        } else if (Move.commandInputIsAttack(input)) {
-            return `<img class="move-button" src="./assets/button/${buttonLayout}/${input}.svg">`;
-        } else if (input === ">") {
+function renderMoveCommand(command, buttonLayout) {
+    return command.getInputs().map((input) => {
+        if (input.isMovement() || input.isNeutral()) {
+            return `<img class="move-arrow" src="./assets/arrow/${input.getSymbol().toLowerCase()}.svg">`;
+        } else if (input.isMovement() && input.isHeld()) {
+            return `<img class="move-arrow" src="./assets/arrow/${input.getSymbol().toLowerCase()}p.svg">`;
+        } else if (input.isAttack()) {
+            return `<img class="move-button" src="./assets/button/${buttonLayout}/${input.getSymbol()}.svg">`;
+        } else if (input.getSymbol() === ">") {
             return `
             <p class="move-hint" style="color:#37ff05;font-size:20px;">
                 <i class="fa fa-chevron-right" aria-hidden="true"></i>
             </p>`;
         } else {
-            return renderMoveHint(char);
+            return renderMoveHint(input.getSymbol());
         }
     }).join("");
 }
@@ -113,21 +112,21 @@ function renderMoveCommand(command, ctrlsMap, buttonLayout) {
  * @param hitsMap
  * @return string
  */
-function renderMoveHitDamage(selectedCharacterIndex, move, hitsMap) {
+function renderMoveHitDamage(move) {
     return `
     <div class="move-hit-dmg">
         <div class="move-hitlvlstring">
-            ${renderMoveHitLevels(move, hitsMap)}
-            ${move.br.length > 0 ? renderThrowBreaks(move) : ``}
+            ${renderMoveHitLevels(move)}
+            ${move.hasThrow() ? renderThrowBreaks(move) : ``}
         </div>
         ${renderMoveDamage(move)}
     </div>
     `;
 }
 
-function renderMoveHitLevels(move, hitsMap) {
-    return move.at
-        .map((hit) => renderMoveHitLevel(hitsMap[hit.l], (hit.t > 0 ? "Throw" : "")))
+function renderMoveHitLevels(move) {
+    return move.getHits()
+        .map((hit) => renderMoveHitLevel(hit.getLevel(), (hit.isThrow() ? "Throw" : "")))
         .join(`<i class="fa fa-chevron-right" aria-hidden="true"></i>`);
 }
 
@@ -142,12 +141,12 @@ function renderMoveHitLevel(hitLevel, hitType) {
 function renderMoveDamage(move) {
     return `
     <div class="move-dmg">
-        <p class="mv-frames">${move.d}</p>
+        <p class="mv-frames">${move.getTotalDamage()}</p>
         <p class="mv-id">Damage</p>
         <div class="move-hitdmg-section">
-            <i id="dmgmove${move.number}" class="fa fa-plus-square" aria-hidden="true"></i>
+            <i id="dmgmove${move.getNumber()}" class="fa fa-plus-square" aria-hidden="true"></i>
             <div class="move-hitdmg">
-                ${move.ds.map(damage => damage.d).join("+")}
+                ${move.getDamages().join("+")}
             </div>
         </div>
     </div>
@@ -158,7 +157,7 @@ function renderThrowBreaks(move) {
     return `
     <i class="fa fa-caret-right" aria-hidden="true"></i>
     <p class="mv-hitlvl">
-        ${move.br[0].f}F BREAK ${Move.getMoveThrowBreak(move)}
+        ${move.getThrowBreakFrames()}F BREAK ${move.getThrowBreak()}
     </p>
     `
 }
@@ -169,22 +168,22 @@ function renderMoveFrames(move) {
         <tr class="move-startf">
             <td class="mv-id">Start</td>
             <td class="mv-frames">
-                ${move.s}F
+                ${move.getStartUpFrames()}F
             </td>
         </tr>
 
-        ${move.s > 0 ? renderStartFramesSegmented(move) : ""}
+        ${move.getStartUpFrames() > 0 ? renderStartFramesSegmented(move) : ""}
 
         <tr class="move-blockf">
             <td class="mv-id">Block</td>
-            <td class="mv-frames ${move.blk > -1 ? "blkpositive" : move.blk < -10 ? "blknegative" : "blkmild"}">
-                ${(move.blk > -1 ? "+" : "" ) + move.blk}
+            <td class="mv-frames ${move.getBlockFrames() > -1 ? "blkpositive" : move.getBlockFrames() < -10 ? "blknegative" : "blkmild"}">
+                ${(move.getBlockFrames() > -1 ? "+" : "" ) + move.getBlockFrames()}
             </td>
         </tr>
         <tr class="move-hitf">
             <td class="mv-id">Hit</td>
             <td class="mv-frames">
-                ${(move.adv > 0 ? "+" : "") + move.adv}
+                ${(move.getAdvantageFrames() > 0 ? "+" : "") + move.getAdvantageFrames()}
             </td>
         </tr>
     </table>
@@ -195,7 +194,7 @@ function renderStartFramesSegmented(move) {
     return `
     <tr class="move-startf-seg">
         <td>
-            ${move.s}F = ${move.ss.slice(1).map(sfs => sfs.s).join("+")}
+            ${move.getStartUpFrames()}F = ${move.getSegmentedStartFrames().join("+")}
         </td>
     </tr>`;
 }
@@ -205,9 +204,9 @@ function renderMoveExtra(move) {
     <div class="move-extra">
         <div class="mv-section">
             <div class="move-special">
-                ${ Move.moveHasSpin(move) ? `<p class="spin">SPIN</p>` : `` }
-                ${ Move.moveHasArmor(move) ? `<p class="armor">ARMOR</p>` : `` }
-                ${ Move.moveHasTracking(move) ? `<p class="track">TRACK</p>` : `` }
+                ${ move.hasSpin() ? `<p class="spin">SPIN</p>` : `` }
+                ${ move.hasArmor() ? `<p class="armor">ARMOR</p>` : `` }
+                ${ move.hasTracking() ? `<p class="track">TRACK</p>` : `` }
             </div>
             ${renderMoveFrames(move)}
         </div>
