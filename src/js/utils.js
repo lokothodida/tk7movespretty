@@ -5,7 +5,7 @@ import * as d3 from 'd3';
  * @return {bool}
  */
 export function isLetter(char) {
-	return char.toLowerCase() != char.toUpperCase();
+	return (typeof char === 'string') && char.toLowerCase() != char.toUpperCase();
 }
 
 /**

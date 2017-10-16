@@ -15,11 +15,20 @@ module.exports = {
   output: {
     filename: "scripts.min.js"
   },
+  module: {
+  rules: [
+        {
+            test: /\.html$/,
+            exclude: /node_modules/,
+            use: {loader: 'html-loader'}
+        }
+    ]
+  },
   externals: {
       d3: 'd3',
       cookies: 'Cookies',
   },
   plugins: [
-    new UglifyJsPlugin({/*minimize: true*/})
+    //new UglifyJsPlugin({/*minimize: true*/})
   ]
 };
