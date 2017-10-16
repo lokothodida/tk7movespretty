@@ -17,35 +17,22 @@ import Move from './move.js';
 
 let state = new State();
 
-function setLang(val) {
-    let lang = parseInt(val);
-    let jap;
-    let langIndex;
-
-    if (lang === 0) {
-        jap = true;
-    } else {
-        jap = false;
-    }
-
-    d3.select("#lang-select").selectAll("option").each(function() {
-        if (parseInt(this.value) === lang) {
-            langIndex = this.index;
-        }
-    });
-
-    state.set('lang', lang);
-    state.set('jap', jap);
-    state.set('langIndex', langIndex);
+function setLang(selectedLanguage) {
+    state.set('lang', parseInt(selectedLanguage));
     state.save();
+    fetchMoveList(state.get('selectedCharacter'));
+}
 
+function changePlatform(platform) {
+    state.set('buttonLayout', platform);
+    state.save();
     fetchMoveList(state.get('selectedCharacter'));
 }
 
 function selectCharacter(index) {
     // remove other moves
     d3.select(".move-table").remove();
-    d3.select(".char-movelist .inner-table").html("<table class=\"move-table\"></table>");
+    d3.select(".char-movelist .inner-table").html(`<table class="move-table"></table>`);
 
     // de-select card
     let characterData     = state.get('characterData');
@@ -98,12 +85,6 @@ function toggleCharMenu() {
     }
 
     state.set('showCharMenuDialog', !showCharMenuDialog);
-}
-
-function changePlatform(index) {
-    state.set('buttonLayoutChoice', index);
-    state.save();
-    fetchMoveList(state.get('selectedCharacter'));
 }
 
 function importData() {
@@ -166,10 +147,8 @@ function fetchMoveList(characterIndex) {
     .then(function(moves) {
         selectCharacter(characterIndex);
         state.set('currentMoveList', moves);
-        let buttonLayouts      = state.get('buttonLayouts');
-        let buttonLayoutChoice = state.get('buttonLayoutChoice');
 
-        View.renderMoveList(moves, buttonLayouts[buttonLayoutChoice]);
+        View.renderMoveList(moves, state.get('buttonLayout'));
     }).catch(function(error) {
         console.log("Failed to render movelist", error);
     });
@@ -177,23 +156,20 @@ function fetchMoveList(characterIndex) {
 
 function parseMoveList(data) {
     let hitsMap  = state.get('hitsMap');
-    let jap      = state.get('jap');
     let lang     = state.get('lang');
     let ctrlsMap = state.get('ctrlsMap');
 
     return data.moves.map((move) => {
-        return new Move(move, lang, jap, ctrlsMap, hitsMap);
+        return new Move(move, lang, ctrlsMap, hitsMap);
     });
 }
 
 function filterMoveList() {
-    let selectedCharacter  = state.get('selectedCharacter');
-    let filteredMoveList   = filters.filterMoveList(state.get('currentMoveList'));
-    let buttonLayouts      = state.get('buttonLayouts');
-    let buttonLayoutChoice = state.get('buttonLayoutChoice');
+    let selectedCharacter = state.get('selectedCharacter');
+    let filteredMoveList  = filters.filterMoveList(state.get('currentMoveList'));
 
     selectCharacter(selectedCharacter);
-    View.renderMoveList(filteredMoveList, buttonLayouts[buttonLayoutChoice]);
+    View.renderMoveList(filteredMoveList, state.get('buttonLayout'));
 }
 
 exports.importData        = importData;

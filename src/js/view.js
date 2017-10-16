@@ -74,7 +74,7 @@ function renderMoveString(move, buttonLayout) {
     <div class="move-string">
         ${move.getCommands().map((command) => {
             if (command.hasLetter()) {
-                return renderMoveHint(command.getSymbol());
+                return renderMoveHint(command.getSymbol() || "");
             } else {
                 return renderMoveCommand(command, buttonLayout);
             }

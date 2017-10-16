@@ -10,13 +10,10 @@ export default class State {
             selectedCharacter : "32",
         	currentMoveList : null,
         	lang : 1,
-        	langIndex : 0,
-        	jap : false,
         	showPrefDialog : false,
         	showFilterDialog : false,
         	showCharMenuDialog : false,
-        	buttonLayouts : ["STEAM", "PS4","XBOX"],
-        	buttonLayoutChoice : 2,
+        	buttonLayout: "XBOX",
         };
     }
 
@@ -32,29 +29,32 @@ export default class State {
         Cookies.set('tk7moves', JSON.stringify({
     		selected_char: this.get('selectedCharacter'),
     		lang: this.get('lang'),
-    		lang_index: this.get('langIndex'),
     		jap: this.get('jap'),
-    		bl_choice: this.get('buttonLayoutChoice')
+    		bl_choice: this.get('buttonLayoutChoice'),
+    		button_layout: this.get('buttonLayout'),
     	}), { expires: 30, path: '' });
     }
 
     load() {
     	if (typeof Cookies.get('tk7moves') != 'undefined') {
-    	    let buttonLayoutChoice = this.get('buttonLayoutChoice');
-    	    let langIndex = this.get('langIndex');
+    	    let vals = JSON.parse(Cookies.get('tk7moves'));
+    	    let buttonLayoutChoice = vals.bl_choice;
+    	    let lang = vals.lang;
+    	    let jap = vals.jap;
+            let selectedCharacter = vals.selected_char;
+            let buttonLayout = vals.button_layout;
 
-    		d3.select("#platf-select > option:nth-child("+(buttonLayoutChoice+1)+")").attr("selected",false);
-    		d3.select("#lang-select > option:nth-child("+(langIndex+1)+")").attr("selected",false);
+    		d3.select("#platf-select option").attr("selected", false);
+    		d3.select("#lang-select option").attr("selected", false);
 
-    		var vals = JSON.parse(Cookies.get('tk7moves'));
-    		this.set('selectedCharacter', vals.selected_char);
-    		this.set('lang', vals.lang);
-    		this.set('langIndex', vals.lang_index);
-    		this.set('jap', vals.jap);
-    		this.set('buttonLayoutChoice', vals.bl_choice);
+    		this.set('selectedCharacter', selectedCharacter);
+    		this.set('lang', lang);
+    		this.set('jap', jap);
+    		this.set('buttonLayoutChoice', buttonLayoutChoice);
+    		this.set('buttonLayout', buttonLayout);
 
-    		d3.select("#platf-select > option:nth-child("+(buttonLayoutChoice+1)+")").attr("selected",true);
-    		d3.select("#lang-select > option:nth-child("+(langIndex+1)+")").attr("selected",true);
+    		d3.select(`#platf-select option[value="${buttonLayout}"]`).attr("selected", true);
+    		d3.select(`#lang-select option[value="${lang}"]`).attr("selected", true);
     	} else {
     		this.save();
     	}

@@ -38,10 +38,10 @@ export function getMoveString(move, lang, ctrlsMap) {
 }
 
 export default class Move {
-    constructor(moveData, language, isJapanese, controlsMap, hitsMap) {
+    constructor(moveData, language, controlsMap, hitsMap) {
         this._moveData = moveData;
         this._language = language;
-        this._isJapanese = isJapanese;
+        this._isJapanese = language === 0;
         this._controlsMap = controlsMap;
         this._hits = this._moveData.at.map((hit) => new Hit(hit, hitsMap));
         this._commands = this._moveData
@@ -145,7 +145,7 @@ class Command {
         this._controlsMap = controlsMap;
         this._inputs = command
             .split("")
-            .map((char) => new Input(controlsMap[char]));
+            .map((char) => new Input(char, controlsMap[char]));
     }
 
     getSymbol() {
@@ -156,18 +156,23 @@ class Command {
         return /[a-z]/.test(this._command.toLowerCase());
     }
 
+    isBracket() {
+        return this._command === "(" || this.__command === ")";
+    }
+
     getInputs() {
         return this._inputs;
     }
 }
 
 class Input {
-    constructor(inputData) {
+    constructor(charData, inputData) {
+        this._charData  = charData;
         this._inputData = inputData;
     }
 
     getSymbol() {
-        return this._inputData;
+        return this._inputData || this._charData;
     }
 
     isLetter() {
