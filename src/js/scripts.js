@@ -17,179 +17,179 @@ import State from './state.js';
 let state = new State();
 
 function setLang(val) {
-	let lang = parseInt(val);
-	let jap;
-	let langIndex;
+    let lang = parseInt(val);
+    let jap;
+    let langIndex;
 
-	if (lang === 0) {
-		jap = true;
-	} else {
-		jap = false;
-	}
+    if (lang === 0) {
+        jap = true;
+    } else {
+        jap = false;
+    }
 
-	d3.select("#lang-select").selectAll("option").each(function() {
-		if (parseInt(this.value) === lang) {
-			langIndex = this.index;
-		}
-	});
+    d3.select("#lang-select").selectAll("option").each(function() {
+        if (parseInt(this.value) === lang) {
+            langIndex = this.index;
+        }
+    });
 
-	state.set('lang', lang);
-	state.set('jap', jap);
-	state.set('langIndex', langIndex);
-	state.save();
+    state.set('lang', lang);
+    state.set('jap', jap);
+    state.set('langIndex', langIndex);
+    state.save();
 
-	fetchMoveList(state.get('selectedCharacter'));
+    fetchMoveList(state.get('selectedCharacter'));
 }
 
 function selectCharacter(index) {
-	// remove other moves
-	d3.select(".move-table").remove();
-	d3.select(".char-movelist .inner-table").html("<table class=\"move-table\"></table>");
+    // remove other moves
+    d3.select(".move-table").remove();
+    d3.select(".char-movelist .inner-table").html("<table class=\"move-table\"></table>");
 
-	// de-select card
-	let characterData     = state.get('characterData');
-	let selectedCharacter = index;
-	let id_string         = characterData[selectedCharacter].c.split(" ");
+    // de-select card
+    let characterData     = state.get('characterData');
+    let selectedCharacter = index;
+    let id_string         = characterData[selectedCharacter].c.split(" ");
 
-	d3.select("#" + id_string[0]).classed("selected", false);
-	d3.select("#" + id_string[0]).classed("selected", true);
-	d3.select("#selected-title").text(characterData[selectedCharacter].n);
+    d3.select("#" + id_string[0]).classed("selected", false);
+    d3.select("#" + id_string[0]).classed("selected", true);
+    d3.select("#selected-title").text(characterData[selectedCharacter].n);
 
-	state.set('selectedCharacter', selectedCharacter);
-	state.save();
+    state.set('selectedCharacter', selectedCharacter);
+    state.save();
 
-	if (state.get('showCharMenuDialog')) {
-		toggleCharMenu();
-	}
+    if (state.get('showCharMenuDialog')) {
+        toggleCharMenu();
+    }
 }
 
 function togglePreferences() {
-	let showPrefDialog = state.get('showPrefDialog');
+    let showPrefDialog = state.get('showPrefDialog');
 
-	if (showPrefDialog) {
-		d3.select("#preferences").style('visibility', 'hidden');
-	} else {
-		d3.select("#preferences").style('visibility', 'visible');
-	}
+    if (showPrefDialog) {
+        d3.select("#preferences").style('visibility', 'hidden');
+    } else {
+        d3.select("#preferences").style('visibility', 'visible');
+    }
 
-	state.set('showPrefDialog', !showPrefDialog);
+    state.set('showPrefDialog', !showPrefDialog);
 }
 
 function toggleFilter() {
-	let showFilterDialog = state.get('showFilterDialog');
+    let showFilterDialog = state.get('showFilterDialog');
 
-	if (showFilterDialog) {
-		d3.select("#filter").style('visibility', 'hidden');
-	} else {
-		d3.select("#filter").style('visibility', 'visible');
-	}
+    if (showFilterDialog) {
+        d3.select("#filter").style('visibility', 'hidden');
+    } else {
+        d3.select("#filter").style('visibility', 'visible');
+    }
 
-	state.set('showFilterDialog', !showFilterDialog);
+    state.set('showFilterDialog', !showFilterDialog);
 }
 
 function toggleCharMenu() {
-	let showCharMenuDialog = state.get('showCharMenuDialog');
+    let showCharMenuDialog = state.get('showCharMenuDialog');
 
-	if (showCharMenuDialog) {
-		d3.select("#charmenu").style('display', 'none');
-	} else {
-		d3.select("#charmenu").style('display', 'initial');
-	}
+    if (showCharMenuDialog) {
+        d3.select("#charmenu").style('display', 'none');
+    } else {
+        d3.select("#charmenu").style('display', 'initial');
+    }
 
-	state.set('showCharMenuDialog', !showCharMenuDialog);
+    state.set('showCharMenuDialog', !showCharMenuDialog);
 }
 
 function changePlatform(index) {
-	state.set('buttonLayoutChoice', index);
-	state.save();
-	fetchMoveList(state.get('selectedCharacter'));
+    state.set('buttonLayoutChoice', index);
+    state.save();
+    fetchMoveList(state.get('selectedCharacter'));
 }
 
 function importData() {
-	state.load();
+    state.load();
 
-	loadJson("./assets/data/map_hits.json").then(function(data) {
-		let hitsMap = state.get('hitsMap');
+    loadJson("./assets/data/map_hits.json").then(function(data) {
+        let hitsMap = state.get('hitsMap');
 
-		for(var h in data) {
-			hitsMap[data[h].i] = data[h].h;
-		}
+        for(var h in data) {
+            hitsMap[data[h].i] = data[h].h;
+        }
 
-		state.set('hitsMap', hitsMap);
+        state.set('hitsMap', hitsMap);
 
-		return loadJson("./assets/data/map_ctrls.json");
-	}).then(function(data) {
-		state.set('ctrlsMap', data);
+        return loadJson("./assets/data/map_ctrls.json");
+    }).then(function(data) {
+        state.set('ctrlsMap', data);
 
-		return loadJson("./assets/data/map_chars.json");
-	}).then(function(data) {
-		let selectedCharacter = state.get('selectedCharacter');
-		let characterData = state.get('characterData');
+        return loadJson("./assets/data/map_chars.json");
+    }).then(function(data) {
+        let selectedCharacter = state.get('selectedCharacter');
+        let characterData = state.get('characterData');
 
-		for (let h in data) {
-			characterData[data[h].i] = {
-				c: data[h].c,
-				n: data[h].n
-			};
-		}
+        for (let h in data) {
+            characterData[data[h].i] = {
+                c: data[h].c,
+                n: data[h].n
+            };
+        }
 
-		state.set('characterData', characterData);
+        state.set('characterData', characterData);
 
-		for (let i = 0; i < data.length; i++) {
-			let tname = data[i].c_index.split(" ");
+        for (let i = 0; i < data.length; i++) {
+            let tname = data[i].c_index.split(" ");
 
-			if (data[i].i == "11") {
-				tname = data[i].c.split("-");
-			}
+            if (data[i].i == "11") {
+                tname = data[i].c.split("-");
+            }
 
-			d3.select(".char-menu > .inner-table > table")
-				.append("tr")
-				.html("<td class=\"char-card\" id=\""+data[i].c.split(" ")[0]+"\"><img src=\"./assets/chars/"+tname.join("").toLowerCase()+"_thumbnail.png\"><p>"+data[i].c+"</p></td>");
+            d3.select(".char-menu > .inner-table > table")
+                .append("tr")
+                .html("<td class=\"char-card\" id=\""+data[i].c.split(" ")[0]+"\"><img src=\"./assets/chars/"+tname.join("").toLowerCase()+"_thumbnail.png\"><p>"+data[i].c+"</p></td>");
 
-			d3.select("#"+data[i].c.split(" ")[0]).on("click", function() {
-				fetchMoveList(data[i].i);
-			});
-		}
+            d3.select("#"+data[i].c.split(" ")[0]).on("click", function() {
+                fetchMoveList(data[i].i);
+            });
+        }
 
-		let id_string = characterData[selectedCharacter].c.split(" ");
-		d3.select("#"+id_string[0]).classed("selected", true);
-		d3.select("#selected-title").text(characterData[selectedCharacter].n);
+        let id_string = characterData[selectedCharacter].c.split(" ");
+        d3.select("#"+id_string[0]).classed("selected", true);
+        d3.select("#selected-title").text(characterData[selectedCharacter].n);
 
-		fetchMoveList(selectedCharacter);
-	});
+        fetchMoveList(selectedCharacter);
+    });
 }
 
 function fetchMoveList(characterIndex) {
-	loadJson("./assets/data/movelists/MOVELIST_" + characterIndex + ".json")
-	.then(function(data) {
-		selectCharacter(characterIndex);
-		let currentMoveList = data.moves;
-		let hitsMap = state.get('hitsMap');
-		let jap = state.get('jap');
-		let lang = state.get('lang');
-		let ctrlsMap = state.get('ctrlsMap');
-		let buttonLayouts = state.get('buttonLayouts');
-		let buttonLayoutChoice = state.get('buttonLayoutChoice');
+    loadJson("./assets/data/movelists/MOVELIST_" + characterIndex + ".json")
+    .then(function(data) {
+        selectCharacter(characterIndex);
+        let currentMoveList = data.moves;
+        let hitsMap = state.get('hitsMap');
+        let jap = state.get('jap');
+        let lang = state.get('lang');
+        let ctrlsMap = state.get('ctrlsMap');
+        let buttonLayouts = state.get('buttonLayouts');
+        let buttonLayoutChoice = state.get('buttonLayoutChoice');
 
-		View.renderMoveList(characterIndex, currentMoveList, hitsMap, jap, lang, ctrlsMap, buttonLayouts[buttonLayoutChoice]);
-	}).catch(function(error) {
-		console.log("Failed to find movelist", error);
-	});
+        View.renderMoveList(characterIndex, currentMoveList, hitsMap, jap, lang, ctrlsMap, buttonLayouts[buttonLayoutChoice]);
+    }).catch(function(error) {
+        console.log("Failed to find movelist", error);
+    });
 }
 
 function filterMoveList() {
-	let currentMoveList = state.get('currentMoveList');
-	let jap = state.get('jap');
-	let lang = state.get('lang');
-	let hitsMap = state.get('hitsMap');
-	let ctrlsMap = state.get('ctrlsMap');
-	let buttonLayouts = state.get('buttonLayouts');
-	let buttonLayoutChoice = state.get('buttonLayoutChoice');
-	let selectedCharacter = state.get('selectedCharacter');
-	let filteredMoveList = filters.filterMoveList(currentMoveList, jap, lang, ctrlsMap);
+    let currentMoveList = state.get('currentMoveList');
+    let jap = state.get('jap');
+    let lang = state.get('lang');
+    let hitsMap = state.get('hitsMap');
+    let ctrlsMap = state.get('ctrlsMap');
+    let buttonLayouts = state.get('buttonLayouts');
+    let buttonLayoutChoice = state.get('buttonLayoutChoice');
+    let selectedCharacter = state.get('selectedCharacter');
+    let filteredMoveList = filters.filterMoveList(currentMoveList, jap, lang, ctrlsMap);
 
-	selectCharacter(selectedCharacter);
-	View.renderMoveList(selectedCharacter, filteredMoveList, hitsMap, jap, lang, ctrlsMap, buttonLayouts[buttonLayoutChoice]);
+    selectCharacter(selectedCharacter);
+    View.renderMoveList(selectedCharacter, filteredMoveList, hitsMap, jap, lang, ctrlsMap, buttonLayouts[buttonLayoutChoice]);
 }
 
 exports.importData        = importData;

@@ -5,7 +5,7 @@ import * as d3 from 'd3';
  * @return {bool}
  */
 export function isLetter(char) {
-	return (typeof char === 'string') && char.toLowerCase() != char.toUpperCase();
+    return (typeof char === 'string') && char.toLowerCase() != char.toUpperCase();
 }
 
 /**
@@ -14,13 +14,13 @@ export function isLetter(char) {
  * @return {Promise}
  */
 export function loadJson(path) {
-	return new Promise(function(resolve, reject) {
-		d3.json(path, function(error, response) {
-			if (error) {
-				reject(error);
-			}
+    return new Promise(function(resolve, reject) {
+        d3.json(path, function(error, response) {
+            if (error) {
+                reject(error);
+            }
 
-			resolve(response);
-		});
-	});
+            resolve(response);
+        });
+    });
 }
