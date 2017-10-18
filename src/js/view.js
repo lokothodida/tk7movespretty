@@ -2,12 +2,45 @@ import * as d3 from 'd3';
 import * as utils from './utils.js';
 import * as Move from './move.js';
 
+export function renderCharacterList(characters, selectedCharacter) {
+    let characterListTable = document.querySelector(".char-menu > .inner-table > table");
+
+    function renderCharacterCard(character, index) {
+        let tname       = character.c_index.split(" ");
+        let characterId = character.c.split(" ")[0];
+        let selected    = index === selectedCharacter ? 'selected' : '';
+
+        // Special case for JACK-7
+        if (character.i == "11") {
+            tname = character.c.split("-");
+        }
+
+        return `
+        <tr>
+            <td class="char-card ${selected}" id="${characterId}" onclick="fetchMoveList('${character.i}')">
+                <img src="./assets/chars/${tname.join("").toLowerCase()}_thumbnail.png">
+                <p>${character.c}</p>
+            </td>
+        </tr>
+        `;
+    }
+
+    characterListTable.innerHTML = characters.map(renderCharacterCard).join("");
+}
+
+export function renderSelectedCharacterName(characterName) {
+    let characterTitle = document.querySelector('#selected-title');
+    characterTitle.innerHTML = characterName;
+}
+
 export function renderMoveList(moves, buttonLayout) {
     let totalMoves = 0;
+    let moveTable = d3.select(".move-table");
+    moveTable.html("");
 
     moves.map((move) => {
         let isSpecialMove = !move.getNumber() > 0;
-        let tableRow      = d3.select(".move-table").append("tr");
+        let tableRow      = moveTable.append("tr");
 
         if (isSpecialMove) {
             tableRow.html(renderSpecialMoveCard(move));

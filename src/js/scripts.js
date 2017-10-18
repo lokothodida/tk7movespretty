@@ -28,28 +28,6 @@ function changePlatform(platform) {
     fetchMoveList(state.get('selectedCharacter'));
 }
 
-function selectCharacter(index) {
-    // remove other moves
-    d3.select(".move-table").remove();
-    d3.select(".char-movelist .inner-table").html(`<table class="move-table"></table>`);
-
-    // de-select card
-    let characterData     = state.get('characterData');
-    let selectedCharacter = index;
-    let id_string         = characterData[selectedCharacter].c.split(" ");
-
-    d3.select("#" + id_string[0]).classed("selected", false);
-    d3.select("#" + id_string[0]).classed("selected", true);
-    d3.select("#selected-title").text(characterData[selectedCharacter].n);
-
-    state.set('selectedCharacter', selectedCharacter);
-    state.save();
-
-    if (state.get('showCharMenuDialog')) {
-        toggleCharMenu();
-    }
-}
-
 function togglePreferences() {
     let showPrefDialog = state.get('showPrefDialog');
 
@@ -89,75 +67,77 @@ function toggleCharMenu() {
 function importData() {
     state.load();
 
-    loadJson("./assets/data/map_hits.json").then(function(data) {
-        let hitsMap = state.get('hitsMap');
+    loadHitsMap()
+    .then(() => loadControlsMap())
+    .then(() => loadCharacterList())
+    .then(() => {
+        let selectedCharacter = state.get('selectedCharacter');
+        let characterList     = sortCharacterList(state.get('characterData'));
 
-        for(var h in data) {
+        View.renderCharacterList(characterList, selectedCharacter);
+        fetchMoveList(selectedCharacter);
+    });
+}
+
+function loadHitsMap() {
+    return loadJson("./assets/data/map_hits.json")
+    .then(function(data) {
+        let hitsMap = {};
+
+        for (var h in data) {
             hitsMap[data[h].i] = data[h].h;
         }
 
         state.set('hitsMap', hitsMap);
 
-        return loadJson("./assets/data/map_ctrls.json");
-    }).then(function(data) {
-        state.set('ctrlsMap', data);
+        return hitsMap;
+    })
+}
 
-        return loadJson("./assets/data/map_chars.json");
-    }).then(function(data) {
-        let selectedCharacter = state.get('selectedCharacter');
-        let characterData     = state.get('characterData');
+function loadControlsMap() {
+    return loadJson("./assets/data/map_ctrls.json")
+    .then(function(ctrlsMap) {
+        state.set('ctrlsMap', ctrlsMap);
+        return ctrlsMap;
+    });
+}
+
+function loadCharacterList() {
+    return loadJson("./assets/data/map_chars.json")
+    .then(function(data) {
+        let characterData = [];
 
         for (let h in data) {
             characterData[data[h].i] = {
                 c: data[h].c,
-                n: data[h].n
+                n: data[h].n,
+                c_index: data[h].c_index,
+                i: data[h].i,
             };
         }
 
         state.set('characterData', characterData);
 
-        let table = d3.select(".char-menu > .inner-table > table");
-
-        data.forEach((character) => {
-            let tname = character.c_index.split(" ");
-
-            // Special case for JACK-7
-            if (character.i == "11") {
-                tname = character.c.split("-");
-            }
-
-            table.append("tr")
-                .html(`
-                <td class="char-card" id="${character.c.split(" ")[0]}">
-                    <img src="./assets/chars/${tname.join("").toLowerCase()}_thumbnail.png">
-                    <p>${character.c}</p>
-                </td>
-                `);
-
-            d3.select("#"+ character.c.split(" ")[0]).on("click", function() {
-                fetchMoveList(character.i);
-            });
-        });
-
-        let id_string = characterData[selectedCharacter].c.split(" ");
-        d3.select("#"+id_string[0]).classed("selected", true);
-        d3.select("#selected-title").text(characterData[selectedCharacter].n);
-
-        fetchMoveList(selectedCharacter);
+        return characterData;
     });
 }
 
-function fetchMoveList(characterIndex) {
-    loadJson("./assets/data/movelists/MOVELIST_" + characterIndex + ".json")
-    .then(parseMoveList)
-    .then(function(moves) {
-        selectCharacter(characterIndex);
-        state.set('currentMoveList', moves);
+function sortCharacterList(characterList) {
+    let sortedList = [];
 
-        View.renderMoveList(moves, state.get('buttonLayout'));
-    }).catch(function(error) {
-        console.log("Failed to render movelist", error);
+    // This accomodates for characters with leading zeros for IDs
+    for (let h in characterList) {
+        sortedList[parseInt(h)] = characterList[h];
+    }
+
+    return sortedList.sort((characterA, characterB) => {
+        return characterA.c_index.localeCompare(characterB.c_index);
     });
+}
+
+function loadMoveList(characterIndex) {
+    return loadJson("./assets/data/movelists/MOVELIST_" + characterIndex + ".json")
+        .then(parseMoveList);
 }
 
 function parseMoveList(data) {
@@ -170,11 +150,26 @@ function parseMoveList(data) {
     });
 }
 
-function filterMoveList() {
-    let selectedCharacter = state.get('selectedCharacter');
-    let filteredMoveList  = filters.filterMoveList(state.get('currentMoveList'));
+function fetchMoveList(characterIndex) {
+    return loadMoveList(characterIndex)
+    .then(function(moves) {
+        state.set('selectedCharacter', characterIndex);
+        state.set('currentMoveList', moves);
+        state.save();
 
-    selectCharacter(selectedCharacter);
+        let characterList = state.get('characterData');
+
+        View.renderSelectedCharacterName(characterList[characterIndex].n);
+        View.renderCharacterList(sortCharacterList(characterList), characterIndex);
+        View.renderMoveList(moves, state.get('buttonLayout'));
+    }).catch(function(error) {
+        console.log("Failed to render movelist", error);
+    });
+}
+
+function filterMoveList() {
+    let filteredMoveList = filters.filterMoveList(state.get('currentMoveList'));
+
     View.renderMoveList(filteredMoveList, state.get('buttonLayout'));
 }
 
@@ -185,5 +180,6 @@ exports.toggleFilter	  = toggleFilter;
 exports.filterMoveList    = filterMoveList;
 exports.setLang           = setLang;
 exports.changePlatform    = changePlatform;
+exports.fetchMoveList     = fetchMoveList;
 
 })(window);
