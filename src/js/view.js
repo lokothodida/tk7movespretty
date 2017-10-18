@@ -1,3 +1,8 @@
+/**
+ * @param  {Character[]} characters
+ * @param  {number}      selectedCharacter
+ * @return {string}
+ */
 export function renderCharacterList(characters, selectedCharacter) {
     function renderCharacterCard(character) {
         let selected = character.getId() === selectedCharacter ? 'selected' : '';
@@ -15,6 +20,11 @@ export function renderCharacterList(characters, selectedCharacter) {
     return characters.map(renderCharacterCard).join("");
 }
 
+/**
+ * @param  {Move[]} moves
+ * @param  {string} buttonLayout
+ * @return {string}
+ */
 export function renderMoveList(moves, buttonLayout) {
     return moves.map((move) => {
         let isSpecialMove = !move.getNumber() > 0;
@@ -27,7 +37,11 @@ export function renderMoveList(moves, buttonLayout) {
     }).join('');
 }
 
-function renderSpecialMoveCard(move, jap) {
+/**
+ * @param  {Move} move
+ * @return {string}
+ */
+function renderSpecialMoveCard(move) {
     return `
     <tr>
         <td class="move-card">
@@ -44,6 +58,11 @@ function renderSpecialMoveCard(move, jap) {
     `;
 }
 
+/**
+ * @param  {Move} move
+ * @param  {string} buttonLayout
+ * @return {string}
+ */
 function renderMoveCard(move, buttonLayout) {
     return `
     <tr>
@@ -55,6 +74,11 @@ function renderMoveCard(move, buttonLayout) {
     `;
 }
 
+/**
+ * @param  {Move} move
+ * @param  {string} buttonLayout
+ * @return {string}
+ */
 function renderMoveInfo(move, buttonLayout) {
     return `
     <div class="move-info">
@@ -71,6 +95,11 @@ function renderMoveInfo(move, buttonLayout) {
     `;
 }
 
+/**
+ * @param  {Move} move
+ * @param  {string} buttonLayout
+ * @return {string}
+ */
 function renderMoveString(move, buttonLayout) {
     return `
     <div class="move-string">
@@ -85,10 +114,19 @@ function renderMoveString(move, buttonLayout) {
     `;
 }
 
+/**
+ * @param  {mixed} hint
+ * @return {string}
+ */
 function renderMoveHint(hint) {
     return `<p class="move-hint">${hint}</p>`;
 }
 
+/**
+ * @param  {Command} command
+ * @param  {string} buttonLayout
+ * @return {string}
+ */
 function renderMoveCommand(command, buttonLayout) {
     return command.getInputs().map((input) => {
         if (input.isMovement() && input.isHeld() && !input.isNeutral()) {
@@ -109,10 +147,8 @@ function renderMoveCommand(command, buttonLayout) {
 }
 
 /**
- * @param selectedCharacterIndex
- * @param move
- * @param hitsMap
- * @return string
+ * @param  {Move} move
+ * @return {string}
  */
 function renderMoveHitDamage(move) {
     return `
@@ -126,12 +162,21 @@ function renderMoveHitDamage(move) {
     `;
 }
 
+/**
+ * @param  {Move} move
+ * @return {string}
+ */
 function renderMoveHitLevels(move) {
     return move.getHits()
         .map((hit) => renderMoveHitLevel(hit.getLevel(), (hit.isThrow() ? "Throw" : "")))
         .join(`<i class="fa fa-chevron-right" aria-hidden="true"></i>`);
 }
 
+/**
+ * @param  {string} hitLevel
+ * @param  {string} hitType
+ * @return {string}
+ */
 function renderMoveHitLevel(hitLevel, hitType) {
     return `
     <p class="mv-hitlvl hit${hitLevel.toLowerCase()}">
@@ -140,6 +185,10 @@ function renderMoveHitLevel(hitLevel, hitType) {
     `;
 }
 
+/**
+ * @param  {Move} move
+ * @return {string}
+ */
 function renderMoveDamage(move) {
     return `
     <div class="move-dmg">
@@ -155,6 +204,10 @@ function renderMoveDamage(move) {
     `;
 }
 
+/**
+ * @param  {Move} move
+ * @return {string}
+ */
 function renderThrowBreaks(move) {
     return `
     <i class="fa fa-caret-right" aria-hidden="true"></i>
@@ -164,6 +217,10 @@ function renderThrowBreaks(move) {
     `
 }
 
+/**
+ * @param  {Move} move
+ * @return {string}
+ */
 function renderMoveFrames(move) {
     return `
     <table class="move-frames">
@@ -192,6 +249,10 @@ function renderMoveFrames(move) {
     `;
 }
 
+/**
+ * @param  {Move} move
+ * @return {string}
+ */
 function renderStartFramesSegmented(move) {
     return `
     <tr class="move-startf-seg">
@@ -201,6 +262,10 @@ function renderStartFramesSegmented(move) {
     </tr>`;
 }
 
+/**
+ * @param  {Move} move
+ * @return {string}
+ */
 function renderMoveExtra(move) {
     return `
     <div class="move-extra">
@@ -215,4 +280,3 @@ function renderMoveExtra(move) {
     </div>
     `;
 }
-
