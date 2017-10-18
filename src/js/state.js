@@ -1,4 +1,3 @@
-import * as d3 from 'd3';
 import Cookies from 'cookies';
 
 export default class State {
@@ -44,17 +43,16 @@ export default class State {
             let selectedCharacter = vals.selected_char;
             let buttonLayout = vals.button_layout;
 
-    		d3.select("#platf-select option").attr("selected", false);
-    		d3.select("#lang-select option").attr("selected", false);
-
     		this.set('selectedCharacter', selectedCharacter);
     		this.set('lang', lang);
     		this.set('jap', jap);
     		this.set('buttonLayoutChoice', buttonLayoutChoice);
     		this.set('buttonLayout', buttonLayout);
 
-    		d3.select(`#platf-select option[value="${buttonLayout}"]`).attr("selected", true);
-    		d3.select(`#lang-select option[value="${lang}"]`).attr("selected", true);
+    		document.querySelector('#platf-select option').setAttribute('selected', false);
+    		document.querySelector('#lang-select option').setAttribute('selected', false);
+    		document.querySelector(`#platf-select option[value="${buttonLayout}"]`).setAttribute('selected', true);
+    		document.querySelector(`#lang-select option[value="${lang}"]`).setAttribute('selected', true);
     	} else {
     		this.save();
     	}
