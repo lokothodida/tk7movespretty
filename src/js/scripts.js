@@ -8,6 +8,7 @@ import * as View from './view.js';
 import * as filters from './filters.js';
 import { loadJson } from './utils.js';
 import State from './state.js';
+import Character from './character.js';
 import Move from './move.js';
 
 (function(exports) {
@@ -106,12 +107,8 @@ function loadCharacterList() {
         let characterData = [];
 
         for (let h in data) {
-            characterData[data[h].i] = {
-                c: data[h].c,
-                n: data[h].n,
-                c_index: data[h].c_index,
-                i: data[h].i,
-            };
+            let character = data[h];
+            characterData[character.i] = new Character(character);
         }
 
         state.set('characterData', characterData);
@@ -129,7 +126,7 @@ function sortCharacterList(characterList) {
     }
 
     return sortedList.sort((characterA, characterB) => {
-        return characterA.c_index.localeCompare(characterB.c_index);
+        return characterA.getIndex().localeCompare(characterB.getIndex());
     });
 }
 
@@ -156,8 +153,9 @@ function fetchMoveList(characterIndex) {
         state.save();
 
         let characterList = state.get('characterData');
+        let character     = characterList[characterIndex];
 
-        View.renderSelectedCharacterName(characterList[characterIndex].n);
+        View.renderSelectedCharacterName(character.getFullName());
         View.renderCharacterList(sortCharacterList(characterList), characterIndex);
         View.renderMoveList(moves, state.get('buttonLayout'));
     }).catch((error) => {
@@ -174,6 +172,18 @@ function filterMoveList() {
     View.renderMoveList(filteredMoveList, state.get('buttonLayout'));
 }
 
+function showHitDamage(moveId) {
+    let hitDamage = document.querySelector(`#dmgmove${moveId} + div.move-hitdmg`);
+
+    hitDamage.style.display = 'initial';
+}
+
+function hideHitDamage(moveId) {
+    let hitDamage = document.querySelector(`#dmgmove${moveId} + div.move-hitdmg`);
+
+    setTimeout(() => hitDamage.style.display = 'none', 3000);
+}
+
 exports.importData        = importData;
 exports.toggleCharMenu    = toggleCharMenu;
 exports.togglePreferences = togglePreferences;
@@ -182,5 +192,7 @@ exports.filterMoveList    = filterMoveList;
 exports.setLang           = setLang;
 exports.changePlatform    = changePlatform;
 exports.fetchMoveList     = fetchMoveList;
+exports.showHitDamage     = showHitDamage;
+exports.hideHitDamage     = hideHitDamage;
 
 })(window);

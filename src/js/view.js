@@ -1,25 +1,14 @@
-import * as d3 from 'd3';
-import * as utils from './utils.js';
-import * as Move from './move.js';
-
 export function renderCharacterList(characters, selectedCharacter) {
     let characterListTable = document.querySelector(".char-menu > .inner-table > table");
 
-    function renderCharacterCard(character, index) {
-        let tname       = character.c_index.split(" ");
-        let characterId = character.c.split(" ")[0];
-        let selected    = character.i === selectedCharacter ? 'selected' : '';
-
-        // Special case for JACK-7
-        if (character.i == "11") {
-            tname = character.c.split("-");
-        }
+    function renderCharacterCard(character) {
+        let selected = character.getId() === selectedCharacter ? 'selected' : '';
 
         return `
         <tr>
-            <td class="char-card ${selected}" id="${characterId}" onclick="fetchMoveList('${character.i}')">
-                <img src="./assets/chars/${tname.join("").toLowerCase()}_thumbnail.png">
-                <p>${character.c}</p>
+            <td class="char-card ${selected}" id="${character.getSlug()}" onclick="fetchMoveList('${character.getId()}')">
+                <img src="./assets/chars/${character.getThumbnailName()}_thumbnail.png">
+                <p>${character.getName()}</p>
             </td>
         </tr>
         `;
@@ -35,26 +24,21 @@ export function renderSelectedCharacterName(characterName) {
 
 export function renderMoveList(moves, buttonLayout) {
     let totalMoves = 0;
-    let moveTable = d3.select(".move-table");
-    moveTable.html("");
+    let moveTable  = document.querySelector('.move-table');
 
-    moves.map((move) => {
+    moveTable.innerHTML = moves.map((move) => {
         let isSpecialMove = !move.getNumber() > 0;
-        let tableRow      = moveTable.append("tr");
 
         if (isSpecialMove) {
-            tableRow.html(renderSpecialMoveCard(move));
+            return renderSpecialMoveCard(move);
         } else {
             totalMoves++;
-            tableRow.html(renderMoveCard(move, buttonLayout));
+            return renderMoveCard(move, buttonLayout);
         }
-    });
-
-    // Hit damage
-    showHitDamageVisibilityOnMouseEnter(totalMoves);
+    }).join('');
 
     // Scroll the list to the top
-    let table = document.querySelector("#movelist_tab > table");
+    let table = document.querySelector('#movelist_tab > table');
     let firstElementChild = table.firstElementChild;
 
     if (firstElementChild) {
@@ -64,25 +48,29 @@ export function renderMoveList(moves, buttonLayout) {
 
 function renderSpecialMoveCard(move, jap) {
     return `
-    <td class="move-card">
-        <div class="move-info">
-            <div class="move-number">&#9733;</div>
-            <div class="move-title">
-                <div class="move-name" style="margin-bottom:5px;">
-                    ${move.getName()}
+    <tr>
+        <td class="move-card">
+            <div class="move-info">
+                <div class="move-number">&#9733;</div>
+                <div class="move-title">
+                    <div class="move-name" style="margin-bottom:5px;">
+                        ${move.getName()}
+                    </div>
                 </div>
             </div>
-        </div>
-    </td>
+        </td>
+    </tr>
     `;
 }
 
 function renderMoveCard(move, buttonLayout) {
     return `
-    <td class="move-card">
-        ${renderMoveInfo(move, buttonLayout)}
-        ${renderMoveExtra(move)}
-    </td>
+    <tr>
+        <td class="move-card">
+            ${renderMoveInfo(move, buttonLayout)}
+            ${renderMoveExtra(move)}
+        </td>
+    </tr>
     `;
 }
 
@@ -177,7 +165,7 @@ function renderMoveDamage(move) {
         <p class="mv-frames">${move.getTotalDamage()}</p>
         <p class="mv-id">Damage</p>
         <div class="move-hitdmg-section">
-            <i id="dmgmove${move.getNumber()}" class="fa fa-plus-square" aria-hidden="true"></i>
+            <i id="dmgmove${move.getNumber()}" class="fa fa-plus-square" aria-hidden="true" onmouseenter="showHitDamage('${move.getNumber()}')" onmouseleave="hideHitDamage('${move.getNumber()}')"></i>
             <div class="move-hitdmg">
                 ${move.getDamages().join("+")}
             </div>
@@ -247,19 +235,3 @@ function renderMoveExtra(move) {
     `;
 }
 
-/**
- * @param int totalMoves
- */
-function showHitDamageVisibilityOnMouseEnter(totalMoves) {
-    /** @note this isn't visible on mobile width */
-    for (let moveid = 1; moveid <= totalMoves; moveid++) {
-        d3.select("#dmgmove" + moveid).on("mouseenter", function() {
-            d3.select("i#"+this.id+" + div.move-hitdmg").style('display', 'initial');
-        });
-        d3.select("#dmgmove" + moveid).on("mouseleave", function() {
-            setTimeout(() => {
-                d3.select("i#"+ this.id + " + div.move-hitdmg").style('display', 'none');
-            }, 3000);
-        });
-    }
-}
