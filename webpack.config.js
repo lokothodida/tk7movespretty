@@ -2,9 +2,9 @@ let webpack = require("webpack");
 let UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-    entry: "./../src/js/scripts.js",
+    entry: "./../src/js/app.js",
     output: {
-        filename: "scripts.min.js"
+        filename: "app.min.js"
     },
     module: {
         rules: [
