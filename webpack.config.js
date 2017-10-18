@@ -16,7 +16,7 @@ module.exports = {
         ]
     },
     externals: {
-      d3: 'd3',
+      fetch: 'fetch',
       cookies: 'Cookies',
     },
     plugins: [

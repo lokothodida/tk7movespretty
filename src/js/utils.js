@@ -1,26 +1,12 @@
-import * as d3 from 'd3';
+import * as fetch from 'fetch';
 
 /**
- * @param {string} char
- * @return {bool}
- */
-export function isLetter(char) {
-    return (typeof char === 'string') && char.toLowerCase() != char.toUpperCase();
-}
-
-/**
- * Promise wrapper around d3.json
+ * Promise wrapper around fetch
  * @param {string} path
  * @return {Promise}
  */
 export function loadJson(path) {
-    return new Promise(function(resolve, reject) {
-        d3.json(path, function(error, response) {
-            if (error) {
-                reject(error);
-            }
-
-            resolve(response);
-        });
-    });
+    return fetch(path)
+        .then((response) => response.text())
+        .then((text) => JSON.parse(text));
 }
