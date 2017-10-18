@@ -171,11 +171,47 @@ function fetchMoveList(characterIndex) {
 }
 
 function filterMoveList() {
-    let filteredMoveList = filters.filterMoveList(state.get('currentMoveList'));
+    let filteredMoveList = filters.filterMoveList(state.get('currentMoveList'), getFilters());
     let moveListHtml     = View.renderMoveList(filteredMoveList, state.get('buttonLayout'));
 
     setMoveListTableHtml(moveListHtml);
     scrollMoveListToTop();
+}
+
+function getFilters() {
+	let moveName = document.querySelector('#move-name-filter').value;
+	let moveString = document.querySelector('#move-string-filter').value;
+	let specialProperties = {
+		spin: document.querySelector('#move-property-spin-filter').checked,
+		track: document.querySelector('#move-property-track-filter').checked,
+		armor: document.querySelector('#move-property-armor-filter').checked,
+	};
+
+	let frameProperties = {
+		start: {
+			value: document.querySelector('#frame-property-start-filter').value,
+			comparison: document.querySelector('#frame-property-start-comparison-filter').value,
+		},
+		block: {
+			value: document.querySelector('#frame-property-block-filter').value,
+			comparison: document.querySelector('#frame-property-block-comparison-filter').value,
+		},
+		hit: {
+			value: document.querySelector('#frame-property-hit-filter').value,
+			comparison: document.querySelector('#frame-property-hit-comparison-filter').value,
+		}
+	};
+
+	frameProperties.start.value = parseInt(frameProperties.start.value);
+	frameProperties.block.value = parseInt(frameProperties.block.value);
+	frameProperties.hit.value   = parseInt(frameProperties.hit.value);
+
+	return {
+		moveName: moveName,
+		moveString: moveString,
+		specialProperties: specialProperties,
+		frameProperties: frameProperties,
+	};
 }
 
 function setMoveListTableHtml(moveListHtml) {

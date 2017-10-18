@@ -15,11 +15,6 @@ export function renderCharacterList(characters, selectedCharacter) {
     return characters.map(renderCharacterCard).join("");
 }
 
-export function renderSelectedCharacterName(characterName) {
-    //let characterTitle = document.querySelector('#selected-title');
-    //characterTitle.innerHTML = characterName;
-}
-
 export function renderMoveList(moves, buttonLayout) {
     return moves.map((move) => {
         let isSpecialMove = !move.getNumber() > 0;
@@ -96,10 +91,10 @@ function renderMoveHint(hint) {
 
 function renderMoveCommand(command, buttonLayout) {
     return command.getInputs().map((input) => {
-        if (input.isMovement() || input.isNeutral()) {
-            return `<img class="move-arrow" src="./assets/arrow/${input.getSymbol().toLowerCase()}.svg">`;
-        } else if (input.isMovement() && input.isHeld()) {
+        if (input.isMovement() && input.isHeld() && !input.isNeutral()) {
             return `<img class="move-arrow" src="./assets/arrow/${input.getSymbol().toLowerCase()}p.svg">`;
+        } else if (input.isMovement() || input.isNeutral()) {
+            return `<img class="move-arrow" src="./assets/arrow/${input.getSymbol().toLowerCase()}.svg">`;
         } else if (input.isAttack()) {
             return `<img class="move-button" src="./assets/button/${buttonLayout}/${input.getSymbol()}.svg">`;
         } else if (input.getSymbol() === ">") {
