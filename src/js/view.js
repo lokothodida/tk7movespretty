@@ -1,6 +1,4 @@
 export function renderCharacterList(characters, selectedCharacter) {
-    let characterListTable = document.querySelector(".char-menu > .inner-table > table");
-
     function renderCharacterCard(character) {
         let selected = character.getId() === selectedCharacter ? 'selected' : '';
 
@@ -14,36 +12,24 @@ export function renderCharacterList(characters, selectedCharacter) {
         `;
     }
 
-    characterListTable.innerHTML = characters.map(renderCharacterCard).join("");
+    return characters.map(renderCharacterCard).join("");
 }
 
 export function renderSelectedCharacterName(characterName) {
-    let characterTitle = document.querySelector('#selected-title');
-    characterTitle.innerHTML = characterName;
+    //let characterTitle = document.querySelector('#selected-title');
+    //characterTitle.innerHTML = characterName;
 }
 
 export function renderMoveList(moves, buttonLayout) {
-    let totalMoves = 0;
-    let moveTable  = document.querySelector('.move-table');
-
-    moveTable.innerHTML = moves.map((move) => {
+    return moves.map((move) => {
         let isSpecialMove = !move.getNumber() > 0;
 
         if (isSpecialMove) {
             return renderSpecialMoveCard(move);
         } else {
-            totalMoves++;
             return renderMoveCard(move, buttonLayout);
         }
     }).join('');
-
-    // Scroll the list to the top
-    let table = document.querySelector('#movelist_tab > table');
-    let firstElementChild = table.firstElementChild;
-
-    if (firstElementChild) {
-        firstElementChild.scrollIntoView(true);
-    }
 }
 
 function renderSpecialMoveCard(move, jap) {

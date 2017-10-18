@@ -152,12 +152,16 @@ function fetchMoveList(characterIndex) {
         state.set('currentMoveList', moves);
         state.save();
 
-        let characterList = state.get('characterData');
-        let character     = characterList[characterIndex];
+        let characterList      = state.get('characterData');
+        let character          = characterList[characterIndex];
+        let characterTitleHtml = character.getFullName();
+        let characterListHtml  = View.renderCharacterList(sortCharacterList(characterList), characterIndex);
+        let moveListHtml       = View.renderMoveList(moves, state.get('buttonLayout'));
 
-        View.renderSelectedCharacterName(character.getFullName());
-        View.renderCharacterList(sortCharacterList(characterList), characterIndex);
-        View.renderMoveList(moves, state.get('buttonLayout'));
+        setCharacterTitleHtml(characterTitleHtml);
+        setCharacterListHtml(characterListHtml);
+        setMoveListTableHtml(moveListHtml);
+        scrollMoveListToTop();
     }).catch((error) => {
         console.log(
             `Failed to render movelist for character ${characterIndex}`,
@@ -168,8 +172,31 @@ function fetchMoveList(characterIndex) {
 
 function filterMoveList() {
     let filteredMoveList = filters.filterMoveList(state.get('currentMoveList'));
+    let moveListHtml     = View.renderMoveList(filteredMoveList, state.get('buttonLayout'));
 
-    View.renderMoveList(filteredMoveList, state.get('buttonLayout'));
+    setMoveListTableHtml(moveListHtml);
+    scrollMoveListToTop();
+}
+
+function setMoveListTableHtml(moveListHtml) {
+    document.querySelector('.move-table').innerHTML = moveListHtml;
+}
+
+function setCharacterTitleHtml(characterTitleHtml) {
+    document.querySelector('#selected-title').innerHTML = characterTitleHtml;
+}
+
+function setCharacterListHtml(characterListHtml) {
+    document.querySelector('.char-menu > .inner-table > table').innerHTML = characterListHtml;
+}
+
+function scrollMoveListToTop() {
+    let table = document.querySelector('#movelist_tab > table');
+    let firstElementChild = table.firstElementChild;
+
+    if (firstElementChild) {
+        firstElementChild.scrollIntoView(true);
+    }
 }
 
 function showHitDamage(moveId) {
