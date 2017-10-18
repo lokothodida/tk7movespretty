@@ -8,7 +8,7 @@ export function renderCharacterList(characters, selectedCharacter) {
     function renderCharacterCard(character, index) {
         let tname       = character.c_index.split(" ");
         let characterId = character.c.split(" ")[0];
-        let selected    = index === selectedCharacter ? 'selected' : '';
+        let selected    = character.i === selectedCharacter ? 'selected' : '';
 
         // Special case for JACK-7
         if (character.i == "11") {

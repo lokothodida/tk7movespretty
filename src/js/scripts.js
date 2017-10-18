@@ -4,7 +4,6 @@
  * =	mspkvp@github.com      =
  * =	©2017 tk7movespretty   =
  * ============================= */
-import * as d3 from 'd3';
 import * as View from './view.js';
 import * as filters from './filters.js';
 import { loadJson } from './utils.js';
@@ -12,6 +11,7 @@ import State from './state.js';
 import Move from './move.js';
 
 (function(exports) {
+
 'use strict';
 
 let state = new State();
@@ -29,36 +29,40 @@ function changePlatform(platform) {
 }
 
 function togglePreferences() {
-    let showPrefDialog = state.get('showPrefDialog');
-
-    if (showPrefDialog) {
-        d3.select("#preferences").style('visibility', 'hidden');
-    } else {
-        d3.select("#preferences").style('visibility', 'visible');
-    }
-
-    state.set('showPrefDialog', !showPrefDialog);
+    toggleDialog('#preferences', 'showPrefDialog');
 }
 
 function toggleFilter() {
-    let showFilterDialog = state.get('showFilterDialog');
+    toggleDialog('#filter', 'showFilterDialog');
+}
 
-    if (showFilterDialog) {
-        d3.select("#filter").style('visibility', 'hidden');
+function toggleDialog(selector, stateProperty) {
+    let value = state.get(stateProperty);
+
+    if (value) {
+        showDialog(selector);
     } else {
-        d3.select("#filter").style('visibility', 'visible');
+        hideDialog(selector);
     }
 
-    state.set('showFilterDialog', !showFilterDialog);
+    state.set(stateProperty, !value);
+}
+
+function showDialog(selector) {
+    document.querySelector(selector).style.visibility = 'hidden';
+}
+
+function hideDialog(selector) {
+    document.querySelector(selector).style.visibility = 'visible';
 }
 
 function toggleCharMenu() {
     let showCharMenuDialog = state.get('showCharMenuDialog');
 
     if (showCharMenuDialog) {
-        d3.select("#charmenu").style('display', 'none');
+        document.querySelector('#charmenu').style.display = 'none';
     } else {
-        d3.select("#charmenu").style('display', 'initial');
+        document.querySelector('#charmenu').style.display = 'initial';
     }
 
     state.set('showCharMenuDialog', !showCharMenuDialog);
@@ -70,18 +74,12 @@ function importData() {
     loadHitsMap()
     .then(() => loadControlsMap())
     .then(() => loadCharacterList())
-    .then(() => {
-        let selectedCharacter = state.get('selectedCharacter');
-        let characterList     = sortCharacterList(state.get('characterData'));
-
-        View.renderCharacterList(characterList, selectedCharacter);
-        fetchMoveList(selectedCharacter);
-    });
+    .then(() => fetchMoveList(state.get('selectedCharacter')));
 }
 
 function loadHitsMap() {
     return loadJson("./assets/data/map_hits.json")
-    .then(function(data) {
+    .then((data) => {
         let hitsMap = {};
 
         for (var h in data) {
@@ -91,12 +89,12 @@ function loadHitsMap() {
         state.set('hitsMap', hitsMap);
 
         return hitsMap;
-    })
+    });
 }
 
 function loadControlsMap() {
     return loadJson("./assets/data/map_ctrls.json")
-    .then(function(ctrlsMap) {
+    .then((ctrlsMap) => {
         state.set('ctrlsMap', ctrlsMap);
         return ctrlsMap;
     });
@@ -104,7 +102,7 @@ function loadControlsMap() {
 
 function loadCharacterList() {
     return loadJson("./assets/data/map_chars.json")
-    .then(function(data) {
+    .then((data) => {
         let characterData = [];
 
         for (let h in data) {
@@ -152,7 +150,7 @@ function parseMoveList(data) {
 
 function fetchMoveList(characterIndex) {
     return loadMoveList(characterIndex)
-    .then(function(moves) {
+    .then((moves) => {
         state.set('selectedCharacter', characterIndex);
         state.set('currentMoveList', moves);
         state.save();
@@ -162,8 +160,11 @@ function fetchMoveList(characterIndex) {
         View.renderSelectedCharacterName(characterList[characterIndex].n);
         View.renderCharacterList(sortCharacterList(characterList), characterIndex);
         View.renderMoveList(moves, state.get('buttonLayout'));
-    }).catch(function(error) {
-        console.log("Failed to render movelist", error);
+    }).catch((error) => {
+        console.log(
+            `Failed to render movelist for character ${characterIndex}`,
+            error
+        );
     });
 }
 
