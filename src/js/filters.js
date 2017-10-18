@@ -6,6 +6,7 @@
 export function filterMoveList(moves, filters) {
     return moves.filter(function(move) {
         let moveString = move.getString();
+        console.log(moveString);
         let includeMove = true;
 
         if (filters.moveName) {
@@ -13,7 +14,7 @@ export function filterMoveList(moves, filters) {
         }
 
         if (filters.moveString) {
-            includeMove = includeMove && moveString.match(filters.moveString);
+            includeMove = includeMove && encodeURIComponent(moveString).match(encodeURIComponent(filters.moveString));
         }
 
         if (filters.specialProperties.spin) {
