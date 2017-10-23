@@ -22,7 +22,7 @@
         </ul>
 
         <p style="text-align: center;">
-            <img src="/assets/img/logo2.png" width="300"/>
+            <img :src="logoUrl" width="300"/>
         </p>
     </div>
 </template>
@@ -40,6 +40,10 @@
 
 <script>
 export default {
-
+    data() {
+        return {
+            logoUrl: './assets/img/logo2.png',
+        }
+    }
 };
 </script>

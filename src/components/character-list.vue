@@ -33,7 +33,7 @@ export default {
         },
 
         getThumbnail(character) {
-            return `/assets/chars/${character.getThumbnailName()}_thumbnail.png`;
+            return `./assets/chars/${character.getThumbnailName()}_thumbnail.png`;
         },
 
         getCharacterLink(character) {

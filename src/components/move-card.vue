@@ -28,9 +28,9 @@
             </div>
             <div class="move-hit-dmg">
                 <div class="move-hitlvlstring">
-                	<template v-for="(hit, index) in getHitsWithChevrons(move.getHits())">
-                		<move-hit-level v-if="!hit.isChevron" :key="index" :hit="hit" :index="index"></move-hit-level>
-        				<i v-else class="fa fa-chevron-right" aria-hidden="true"></i>
+                	<template v-for="(hit, index) in move.getHits()">
+                		<move-hit-level :key="index" :hit="hit" :index="index"></move-hit-level>
+        				<i v-if="index < move.getHits().length - 1" class="fa fa-chevron-right" aria-hidden="true"></i>
             		</template>
 
                 	<template v-if="move.hasThrow()">
@@ -56,31 +56,16 @@ export default {
     props: ['move'],
 
     methods: {
-    	/** A hack for the fact that there is no v-glue directive */
-    	getHitsWithChevrons(hits) {
-    		let hitsWithChevron = [];
-
-    		hits.map((hit, index) => {
-    			hitsWithChevron.push(hit);
-
-    			if (index < hits.length - 1) {
-	    			hitsWithChevron.push({ isChevron: true });
-    			}
-    		});
-
-    		return hitsWithChevron;
-    	},
-
     	getHeldDirectionalImage(input) {
-    		return `/assets/arrow/${input.getSymbol().toLowerCase()}p.svg`;
+    		return `./assets/arrow/${input.getSymbol().toLowerCase()}p.svg`;
     	},
 
     	getDirectionalImage(input) {
-    		return `/assets/arrow/${input.getSymbol().toLowerCase()}.svg`;
+    		return `./assets/arrow/${input.getSymbol().toLowerCase()}.svg`;
     	},
 
     	getAttackButtonImage(input) {
-    		return `/assets/button/${this.buttonLayout}/${input.getSymbol()}.svg`;
+    		return `./assets/button/${this.buttonLayout}/${input.getSymbol()}.svg`;
     	},
     },
 
