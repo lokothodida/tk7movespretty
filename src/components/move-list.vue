@@ -54,10 +54,12 @@ export default {
 
         togglePreferences() {
             this.$store.commit(mutations.TOGGLE_PREFERENCES_DIALOG);
+            this.$store.commit(mutations.HIDE_CHARACTER_LIST);
         },
 
         toggleFilters() {
             this.$store.commit(mutations.TOGGLE_FILTERS_DIALOG);
+            this.$store.commit(mutations.HIDE_CHARACTER_LIST);
         },
     },
 

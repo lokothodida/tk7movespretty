@@ -47,8 +47,8 @@ export default class Move {
         return this.getCommands()
             .map((command) => {
                 return command.getInputs()
-                    .map((input) => input.getSymbol());
-            }).join("");
+                    .map((input) => input.getSymbol()).join("");
+            }).join(" ");
     }
 
     hasThrow() {

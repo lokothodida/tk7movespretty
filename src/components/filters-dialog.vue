@@ -2,6 +2,8 @@
     <div id="filters" class="filters-dialog preferences-dialog" v-bind:style="{ visibility }">
         <div class="pref-title disable-select">
             Filter
+
+            <a href="#" class="reset" v-on:click.prevent="reset()">Reset Filters</a>
         </div>
         <table class="pref-list">
             <tr class="pref-language">
@@ -78,6 +80,13 @@
 </template>
 
 <style>
+.reset {
+    color: #fff;
+    text-decoration: none;
+    float: right;
+    margin-right: 30px;
+}
+
 .filters-dialog .pref-list {
     display: table;
 }
@@ -202,41 +211,52 @@
 </style>
 
 <script>
+let defaultFilters = {
+    moveName: '',
+
+    moveString: '',
+
+    specialProperties: {
+        spin: false,
+        armor: false,
+        track: false,
+    },
+
+    frameProperties: {
+        start: {
+            value: '',
+            comparison: '=',
+        },
+        block: {
+            value: '',
+            comparison: '=',
+        },
+        hit: {
+            value: '',
+            comparison: '=',
+        },
+    },
+
+    comparisons: ['=', '<=', '<', '>=', '>']
+};
+
 export default {
     data() {
-        return {
-            moveName: '',
-
-            moveString: '',
-
-            specialProperties: {
-                spin: false,
-                armor: false,
-                track: false,
-            },
-
-            frameProperties: {
-                start: {
-                    value: '',
-                    comparison: '=',
-                },
-                block: {
-                    value: '',
-                    comparison: '=',
-                },
-                hit: {
-                    value: '',
-                    comparison: '=',
-                },
-            },
-
-            comparisons: ['=', '<=', '<', '>=', '>']
-        };
+        return Object.assign({}, defaultFilters);
     },
 
     methods: {
         toggle() {
             this.$store.commit('toggleFiltersDialog');
+        },
+
+        reset() {
+            this.moveName          = defaultFilters.moveName;
+            this.moveString        = defaultFilters.moveString;
+            this.specialProperties = Object.assign({}, defaultFilters.specialProperties);
+            this.frameProperties   = Object.assign({}, defaultFilters.frameProperties);
+
+            this.updateFilters();
         },
 
         updateFilters() {
