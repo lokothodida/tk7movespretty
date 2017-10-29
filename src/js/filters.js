@@ -4,6 +4,7 @@
  * @return {Move[]}
  */
 export function filterMoveList(moves, filters) {
+
     return moves.filter((move) => {
         let moveString  = move.getString();
         let includeMove = true;
@@ -13,7 +14,11 @@ export function filterMoveList(moves, filters) {
         }
 
         if (filters.moveString) {
-            includeMove = includeMove && encodeURIComponent(moveString).match(encodeURIComponent(filters.moveString));
+            let filteredMoveString = filters.moveString.replace(/(,( )*)/g, "");
+            let encodedMoveString  = encodeURIComponent(moveString);
+            filteredMoveString     = encodeURIComponent(filteredMoveString);
+
+            includeMove = includeMove && encodedMoveString.match(filteredMoveString);
         }
 
         if (filters.specialProperties.spin) {
