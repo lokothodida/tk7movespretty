@@ -1,5 +1,5 @@
 <template>
-    <div id="charmenu" class="char-menu disable-select" :style="{ display: visibility }">
+    <div id="charmenu" class="char-menu disable-select" :class="{ hidden: visibility }">
 	    <table class="head">
 			<tr>
 				<td class="char-menu-close" v-on:click="hideCharacterList()">
@@ -22,6 +22,18 @@
 	    </div>
 	</div>
 </template>
+
+<style>
+.hidden {
+    display: initial !important;
+}
+
+@media only screen and (max-width: 800px) {
+    .hidden {
+        display: none;
+    }
+}
+</style>
 
 <script>
 import { mutations, actions } from './../js/store.js';
@@ -47,7 +59,7 @@ export default {
 
     computed: {
         visibility() {
-            return this.$store.state.showCharacterList ? 'initial' : 'none';
+            return this.$store.state.showCharacterList;
         },
 
         characters() {

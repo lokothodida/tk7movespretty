@@ -17,6 +17,8 @@ export const mutations = {
     TOGGLE_PREFERENCES_DIALOG: 'togglePreferencesDialog',
     TOGGLE_FILTERS_DIALOG: 'toggleFiltersDialog',
     TOGGLE_CHARACTER_LIST: 'toggleCharacterList',
+    SHOW_CHARACTER_LIST: 'showCharacterList',
+    HIDE_CHARACTER_LIST: 'hideCharacterList',
 
     UPDATE_PREFERENCES: 'updatePreferences',
     UPDATE_FILTERS: 'updateFilters',
@@ -118,6 +120,14 @@ export const store = {
 
         [mutations.TOGGLE_CHARACTER_LIST] (state) {
             state.showCharacterList = !state.showCharacterList;
+        },
+
+        [mutations.SHOW_CHARACTER_LIST] (state) {
+            state.showCharacterList = true;
+        },
+
+        [mutations.HIDE_CHARACTER_LIST] (state) {
+            state.showCharacterList = false;
         },
 
         [mutations.UPDATE_PREFERENCES] (state, { buttonLayout, language }) {

@@ -81,12 +81,10 @@
 
 <style>
 .reset {
+    color: #fff;
+    text-decoration: none;
     float: right;
     margin-right: 30px;
-}
-
-.reset:hover {
-    cursor: pointer;
 }
 
 .filters-dialog .pref-list {
