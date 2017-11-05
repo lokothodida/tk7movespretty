@@ -415,17 +415,6 @@ table {
     align-items: center;
 }
 
-.move-hitdmg-section {
-    display: flex;
-    flex-direction: initial;
-    align-items: center;
-    justify-content: flex-start;
-
-    @media only screen and (max-width: 800px) {
-        display: none;
-    }
-}
-
 .fa-plus-square {
     margin-left: 5px;
     cursor: pointer;
@@ -446,55 +435,12 @@ table {
     display: none;
 }
 
-.move-dmg::before{
-    margin-left: 10px;
-    margin-right: 10px;
-    content: "\007C";
-    align-self: baseline;
-    font-weight: bold;
-    color: hsl(193, 77%, 20%);
-}
+
 
 
 .fa-chevron-right, .fa-caret-right {
     margin: 0 5px 0 5px;
 }
-
-.move-dmg {
-    margin-right: 5px;
-    justify-content: flex-end;
-    margin-top: 1px;
-
-    @media only screen and (max-width: 800px) {
-        margin: 0;
-    }
-}
-
-.move-dmg p {
-    margin: 0;
-    margin-right: 2px;
-    color: #dace00;
-    text-shadow: 0px 0px 5px #000000;
-    font-size: 16px;
-    font-weight: bold;
-
-    @media only screen and (max-width: 800px) {
-        font-size: 12px;
-    }
-}
-
-.move-dmg .fa-arrow-right {
-    margin-left: 4px;
-    margin-right: 4px;
-}
-
-
-
-
-
-
-
-
 
 .preferences-dialog {
     position: absolute;
