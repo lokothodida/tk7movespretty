@@ -388,43 +388,7 @@ table {
 
 /* Move Cards CSS */
 
-.move-card {
-    color:  #ffffff;
-    font-family: "Core Sans G", Arial, sans-serif;
-    border: 2px solid hsla(193, 77%, 20%, 0.75);
-    background-color: rgba(0,0,0,0.50);
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    border-radius: 1px;
-    max-width: 100%;
-    justify-content: space-between;
-}
 
-.move-button, .move-arrow {
-    width: 40px;
-    height: auto;
-    padding: 1px;
-}
-
-.move-info {
-    position: relative;
-    max-width: 760px;
-
-    @media only screen and (max-width: 1130px) {
-        max-width: calc(100vw - 400px);
-    }
-
-    @media only screen and (max-width: 800px) {
-        max-width: calc(100vw - 135px);
-    }
-}
-
-.move-title * {
-    @media only screen and (max-width: 800px) {
-        font-size: 14px !important;
-    }
-}
 
 .move-hit-dmg * {
     @media only screen and (max-width: 800px) {
@@ -438,60 +402,9 @@ table {
     align-items: baseline;
 }
 
-.move-number {
-    position: absolute;
-    width: 40px;
-    height: 25px;
-    background-color: hsla(193, 77%, 20%, 0.75);
-    left: 0;
-    top: 0;
-    margin-left: -1px;
-    margin-top: -1px;
-    border-bottom-right-radius: 20px;
-    font-size: 15px;
-    text-indent: -5px;
-
-    @media only screen and (max-width: 800px) {
-        font-size: 10px;
-        width: 25px;
-        height: 15px;
-    }
-}
-
 .move-hint {
     margin: 0;
     margin-right: 5px;
-}
-
-.move-string {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: 50px;
-    max-width: 100%;
-    overflow-x: auto;
-    cursor: grab;
-
-    @media only screen and (max-width: 800px) {
-        margin-left: 25px;
-        font-size: 12px;
-    }
-}
-
-div.move-string::-webkit-scrollbar {
-    height: 3px !important;
-}
-.move-name {
-    font-size: 20px;
-    font-weight: bold;
-    margin-left: 50px;
-    margin-right: 10px;
-    padding-top: 5px;
-
-    @media only screen and (max-width: 800px) {
-        margin-left: 25px;
-        margin-right: 5px;
-    }
 }
 
 .move-framestring, .move-dmgstring, .move-hitdmg,
@@ -542,33 +455,9 @@ div.move-string::-webkit-scrollbar {
     color: hsl(193, 77%, 20%);
 }
 
-.move-hitlvlstring {
-    margin: 3px 0 5px 50px;
-    overflow-x: auto;
-    overflow-y: hidden;
-
-    @media only screen and (max-width: 800px) {
-        margin-left: 25px;
-    }
-}
-
-div.move-hitlvlstring::-webkit-scrollbar {
-    height: 3px !important;
-}
 
 .fa-chevron-right, .fa-caret-right {
     margin: 0 5px 0 5px;
-}
-
-
-
-.move-hitamount {
-    text-align: left;
-    color: #f19700;
-    font-weight: bold;
-    text-shadow: 0px 0px 5px #000000;
-    font-style: italic;
-    font-size: 18px;
 }
 
 .move-dmg {
