@@ -11,6 +11,46 @@
 	</div>
 </template>
 
+<style lang="scss">
+
+.footer {
+    width: 100%;
+    background-color: #013a51;
+    height: 35px;
+    position: absolute;
+    left: 0px;
+    bottom: 15px;
+    line-height: 30px;
+
+    @media only screen and (max-height: 800px) {
+        font-size: 12px;
+        line-height: 20px;
+        height: 25px;
+        overflow-y: hidden;
+    }
+
+    p {
+        color: #ffffff;
+        font-family: "Core Sans G", Arial, sans-serif;
+        overflow-x: auto;
+        white-space: nowrap;
+        margin: 0;
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-top: 3px;
+
+        @media only screen and (max-height: 800px) {
+            //font-size: 15px;
+            overflow-y: hidden;
+        }
+    }
+}
+
+.footer p::-webkit-scrollbar {
+    height: 0px !important;
+}
+</style>
+
 <script>
 export default {
     data() {
