@@ -71,23 +71,6 @@
     to { text-shadow: 0 0 25px hsla(181, 92%, 50%, 1); }
 }
 
-.main-container {
-    width: 100vw;
-    height: calc(100vh - 180px);
-    display: flex;
-    flex-direction: row;
-    align-content: flex-start;
-    align-items: center;
-    text-align: center;
-    position: absolute;
-    left: 0;
-    top: 100px;
-
-    @media only screen and (max-width: 800px) {
-        top: 70px;
-    }
-}
-
 .separator {
     background-color: hsla(193, 77%, 40%, 0.5);
     width: 2px;
@@ -160,12 +143,6 @@ table {
 
 .fa-chevron-right, .fa-caret-right {
     margin: 0 5px 0 5px;
-}
-
-@media only screen and (max-height: 800px){
-    .main-container {
-        height: 80%;
-    }
 }
 </style>
 
