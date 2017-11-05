@@ -165,6 +165,18 @@ div.move-hitlvlstring::-webkit-scrollbar {
         width: 30px;
     }
 }
+
+.move-hit-dmg * {
+    @media only screen and (max-width: 800px) {
+        font-size: 12px;
+    }
+}
+
+.move-title, .move-hit-dmg {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+}
 </style>
 
 <script>

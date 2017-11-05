@@ -136,18 +136,6 @@ table {
     }
 }
 
-.move-hit-dmg * {
-    @media only screen and (max-width: 800px) {
-        font-size: 12px;
-    }
-}
-
-.move-title, .move-hit-dmg {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-}
-
 .move-hint {
     margin: 0;
     margin-right: 5px;
@@ -164,17 +152,6 @@ table {
 .fa-plus-square {
     margin-left: 5px;
     cursor: pointer;
-}
-
-.move-hitdmg {
-    background-color: rgba(0,0,0,0.75);
-    border: 1px solid hsla(193, 77%, 20%, 0.75);
-    padding: 0px 10px 0 10px;
-    margin-left: 10px;
-    border-radius: 4px;
-    max-width: 100%;
-    font-size: 1.5vmin;
-    display: none;
 }
 
 .hidden {

@@ -49,6 +49,17 @@
     color: hsl(193, 77%, 20%);
 }
 
+.move-hitdmg {
+    background-color: rgba(0,0,0,0.75);
+    border: 1px solid hsla(193, 77%, 20%, 0.75);
+    padding: 0px 10px 0 10px;
+    margin-left: 10px;
+    border-radius: 4px;
+    max-width: 100%;
+    font-size: 1.5vmin;
+    display: none;
+}
+
 .move-hitdmg-section {
     display: flex;
     flex-direction: initial;
