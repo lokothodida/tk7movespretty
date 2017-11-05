@@ -107,81 +107,6 @@ table {
     overflow: hidden;*/
 }
 
-.char-movelist {
-    /*width: 600px;*/
-    max-width: 970px;
-    height: 100%;
-    margin-left: 3px;
-}
-
-.char-movelist .head {
-    margin-left: 25px;
-    width: auto;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: baseline;
-
-    @media only screen and (max-width: 800px) {
-        align-items: center;
-        margin-left: 5px;
-    }
-
-    .move-head {
-        color: #ffffff;
-        font-family: "Trump", Arial, sans-serif;
-        font-size: 40px;
-        font-style: italic;
-        text-transform: uppercase;
-        text-shadow: 0 0 6px hsla(0, 100%, 47%, 1);
-        margin: 3px 15px 3px 0px;
-
-        @media only screen and (max-width: 800px) {
-            font-size: 22px;
-        }
-    }
-
-    .opt-buttons {
-        display: block;
-        color: #ffffff;
-
-        .btn-preferences, .btn-filter {
-            display: inline-block;
-            font-size: 20px;
-            font-weight: bold;
-            background-color: hsla(193, 77%, 20%, 0.75);
-            padding-left: 15px;
-            padding-right: 15px;
-            margin-right: 5px;
-            border-radius: 5px;
-            font-family: "Core Sans G", Arial, sans-serif;
-            text-transform: uppercase;
-            text-shadow: 0 0 6px hsla(181, 92%, 50%, 1);
-            cursor: pointer;
-            vertical-align: middle;
-            height: 25px;
-            line-height: 25px;
-
-            @media only screen and (max-height: 800px){
-                height: 20px;
-                font-size: 15px;
-                padding-left: 5px;
-                padding-right: 5px;
-                margin-right: 5px;
-                line-height: 20px;
-            }
-        }
-
-        *:hover {
-            background-color: hsla(193, 76%, 30%, 0.75);
-        }
-
-        *:active {
-            background-color: hsla(193, 77%, 12%, 0.75);
-        }
-    }
-}
-
 .move-filter {
     color: #ffffff;
     font-size: 20px;
@@ -209,15 +134,6 @@ table {
     @media only screen and (max-height: 500px) {
         height: calc(100% - 80px);
     }
-}
-
-.move-table {
-    /*background-color: rgba(0,0,0,0.25);*/
-    border: 1px solid hsla(193, 77%, 40%, 0.25);
-    margin-top: 2px;
-    border-radius: 2px;
-    max-width: 100%;
-    //width: auto;
 }
 
 .move-hit-dmg * {
@@ -272,26 +188,6 @@ table {
 @media only screen and (max-height: 800px){
     .main-container {
         height: 80%;
-    }
-}
-
-@media only screen and (max-width: 1130px) {
-    .char-movelist {
-        max-width: 80vw;
-    }
-}
-
-@media only screen and (max-width: 801px) {
-    .move-head {
-        font-size: 35px;
-    }
-
-    .char-movelist {
-        max-width: 98vw;
-    }
-
-    .move-button, .move-arrow {
-        width: 30px;
     }
 }
 </style>

@@ -159,6 +159,12 @@ div.move-hitlvlstring::-webkit-scrollbar {
     font-style: italic;
     font-size: 18px;
 }
+
+@media only screen and (max-width: 801px) {
+    .move-button, .move-arrow {
+        width: 30px;
+    }
+}
 </style>
 
 <script>
