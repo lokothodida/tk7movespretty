@@ -7,11 +7,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import AppHeader from './../components/app-header.vue';
-import AppBody from './../components/app-body.vue';
-import AppFooter from './../components/app-footer.vue';
-import PreferencesDialog from './../components/preferences-dialog.vue';
-import FiltersDialog from './../components/filters-dialog.vue';
+import App from './../components/app.vue';
 import { store, actions } from './store.js';
 import router from './router.js';
 
@@ -52,10 +48,6 @@ import router from './router.js';
     },
 
     components: {
-        AppHeader,
-        AppBody,
-        AppFooter,
-        PreferencesDialog,
-        FiltersDialog,
+        App,
     }
 }))();
